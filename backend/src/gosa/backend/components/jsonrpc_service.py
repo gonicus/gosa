@@ -16,6 +16,7 @@ registering the WSGI application to the
 
 ------
 """
+import datetime
 import sys
 import uuid
 import traceback
@@ -81,6 +82,8 @@ class JsonRpcHandler(HSTSRequestHandler):
 
     # denial service for some time after login fails to often
     __dos_manager = {}
+    # in proxy mode the usersessions are stored in memory (because we cannot write them to the database)
+    __sessions = {}
     executor = None
 
     def initialize(self):
@@ -89,6 +92,9 @@ class JsonRpcHandler(HSTSRequestHandler):
         self.log = logging.getLogger(__name__)
         self.ident = "GOsa JSON-RPC service (%s)" % VERSION
         self.executor = PluginRegistry.getInstance('ExecutorWrapper').executor
+
+        sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
+        sched.add_interval_job(self.__gc_sessions, minutes=180, tag='_internal', jobstore="ram")
 
     def get(self):
         """Allow the clients to get the XSRF cookie"""
@@ -141,6 +147,42 @@ class JsonRpcHandler(HSTSRequestHandler):
                     'seconds': int(ttw)
                 }
         return None
+
+    def __save_user_session(self, user_session):
+        if self.env.mode == "proxy":
+            self.__sessions[user_session.sid] = user_session
+        else:
+            with make_session() as session:
+                session.add(user_session)
+
+    def __delete_user_session(self, user_session):
+        if self.env.mode == "proxy":
+            if user_session.sid in self.__sessions:
+                del self.__sessions[user_session.sid]
+        else:
+            with make_session() as session:
+                session.delete(user_session)
+
+    def __get_user_session(self, sid):
+        if self.env.mode == "proxy":
+            if sid in self.__sessions:
+                del self.__sessions[sid]
+            else:
+                return None
+        else:
+            with make_session() as session:
+                return session.query(UserSession).filter(UserSession.sid == sid).one_or_none()
+
+    def __gc_sessions(self):
+        """ delete sessions that not have been used for 10 hours """
+        threshold_date = (datetime.datetime.now() - datetime.timedelta(hours=10))
+        if self.env.mode == "proxy":
+            for sid, user_session in self.__sessions.items():
+                if user_session.last_used < threshold_date:
+                    del self.__sessions[sid]
+        else:
+            with make_session() as session:
+                return session.query(UserSession).filter(UserSession.last_used < threshold_date).delete()
 
     @tornado.concurrent.run_on_executor
     def process(self, data):
@@ -205,35 +247,32 @@ class JsonRpcHandler(HSTSRequestHandler):
                 if user in cls.__dos_manager:
                     del cls.__dos_manager[user]
 
-                with make_session() as session:
-                    us = UserSession(
-                        sid=sid,
-                        user=user,
-                        dn=dn
-                    )
+                us = UserSession(
+                    sid=sid,
+                    user=user,
+                    dn=dn,
+                    last_used=datetime.datetime.now()
+                )
+                self.set_secure_cookie('REMOTE_USER', user)
+                self.set_secure_cookie('REMOTE_SESSION', sid)
+                factor_method = twofa_manager.get_method_from_user(dn)
+                if factor_method is None:
+                    result['state'] = AUTH_SUCCESS
+                    self.log.info("login succeeded for user '%s'" % user)
+                elif factor_method == "otp":
+                    result['state'] = AUTH_OTP_REQUIRED
+                    self.log.info("login succeeded for user '%s', proceeding with OTP two-factor authentication" % user)
+                elif factor_method == "u2f":
+                    self.log.info("login succeeded for user '%s', proceeding with U2F two-factor authentication" % user)
+                    result['state'] = AUTH_U2F_REQUIRED
+                    result['u2f_data'] = twofa_manager.sign(user, dn)
 
-                    self.set_secure_cookie('REMOTE_USER', user)
-                    self.set_secure_cookie('REMOTE_SESSION', sid)
-                    factor_method = twofa_manager.get_method_from_user(dn)
-                    if factor_method is None:
-                        result['state'] = AUTH_SUCCESS
-                        self.log.info("login succeeded for user '%s'" % user)
-                    elif factor_method == "otp":
-                        result['state'] = AUTH_OTP_REQUIRED
-                        self.log.info("login succeeded for user '%s', proceeding with OTP two-factor authentication" % user)
-                    elif factor_method == "u2f":
-                        self.log.info("login succeeded for user '%s', proceeding with U2F two-factor authentication" % user)
-                        result['state'] = AUTH_U2F_REQUIRED
-                        result['u2f_data'] = twofa_manager.sign(user, dn)
-
-                    us.auth_state = result['state']
-                    session.add(us)
+                us.auth_state = result['state']
+                self.__save_user_session(us)
             else:
                 # Remove current sid if present
-                with make_session() as session:
-                    db_session = session.query(UserSession).filter(UserSession.sid == sid).one_or_none()
-                    if not self.get_secure_cookie('REMOTE_SESSION') and db_session is not None:
-                        session.delete(db_session)
+                if not self.get_secure_cookie('REMOTE_SESSION'):
+                    self.__delete_user_session(sid)
 
                 self.log.error("login failed for user '%s'" % user)
                 result['state'] = AUTH_FAILED
@@ -259,47 +298,50 @@ class JsonRpcHandler(HSTSRequestHandler):
             return dict(result=result, error=None, id=jid)
 
         # Don't let calls pass beyond this point if we've no valid session ID
-        with make_session() as session:
-            cookie = self.get_secure_cookie('REMOTE_SESSION')
-            if cookie is None:
-                self.log.error("blocked unauthenticated call of method '%s'" % method)
-                raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
+        cookie = self.get_secure_cookie('REMOTE_SESSION')
+        if cookie is None:
+            self.log.error("blocked unauthenticated call of method '%s'" % method)
+            raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
-            db_session = session.query(UserSession).filter(UserSession.sid == cookie.decode('ascii')).one_or_none()
-            if db_session is None:
-                self.log.error("blocked unauthenticated call of method '%s'" % method)
-                raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
+        db_session = self.__get_user_session(cookie.decode('ascii'))
+        if db_session is None:
+            self.log.error("blocked unauthenticated call of method '%s'" % method)
+            raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
-            # Remove remote session on logout
-            if method == 'logout':
+        # Remove remote session on logout
+        if method == 'logout':
 
-                # Remove current sid if present
-                if self.get_secure_cookie('REMOTE_SESSION'):
-                    if db_session is not None:
-                        session.delete(db_session)
+            # Remove current sid if present
+            if self.get_secure_cookie('REMOTE_SESSION'):
+                if db_session is not None:
+                    self.__delete_user_session(db_session)
 
-                # Show logout message
-                if self.get_secure_cookie('REMOTE_USER'):
-                    self.log.info("logout for user '%s' succeeded" % self.get_secure_cookie('REMOTE_USER'))
+            # Show logout message
+            if self.get_secure_cookie('REMOTE_USER'):
+                self.log.info("logout for user '%s' succeeded" % self.get_secure_cookie('REMOTE_USER'))
 
-                self.clear_cookie("REMOTE_USER")
-                self.clear_cookie("REMOTE_SESSION")
-                return dict(result=True, error=None, id=jid)
+            self.clear_cookie("REMOTE_USER")
+            self.clear_cookie("REMOTE_SESSION")
+            return dict(result=True, error=None, id=jid)
 
-            # check two-factor authentication
-            if method == 'verify':
-                (key,) = params
+        # update session timestamp
+        db_session.last_used = datetime.datetime.now()
+        self.__save_user_session(db_session)
 
-                if db_session.auth_state == AUTH_OTP_REQUIRED or db_session.auth_state == AUTH_U2F_REQUIRED:
+        # check two-factor authentication
+        if method == 'verify':
+            (key,) = params
 
-                    if twofa_manager.verify(db_session.user, db_session.dn, key):
-                        db_session.auth_state = AUTH_SUCCESS
-                        return dict(result={'state': AUTH_SUCCESS}, error=None, id=jid)
-                    else:
-                        return dict(result={'state': AUTH_FAILED}, error=None, id=jid)
+            if db_session.auth_state == AUTH_OTP_REQUIRED or db_session.auth_state == AUTH_U2F_REQUIRED:
 
-            if db_session.auth_state != AUTH_SUCCESS:
-                raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
+                if twofa_manager.verify(db_session.user, db_session.dn, key):
+                    db_session.auth_state = AUTH_SUCCESS
+                    return dict(result={'state': AUTH_SUCCESS}, error=None, id=jid)
+                else:
+                    return dict(result={'state': AUTH_FAILED}, error=None, id=jid)
+
+        if db_session.auth_state != AUTH_SUCCESS:
+            raise tornado.web.HTTPError(401, "Please use the login method to authorize yourself.")
 
         return self.dispatch(method, params, jid)
 

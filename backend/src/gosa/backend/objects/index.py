@@ -207,10 +207,12 @@ class UserSession(Base):
     sid = Column(String(36), primary_key=True, nullable=False)
     user = Column(String)
     dn = Column(String)
+    last_used = Column(DateTime)
     auth_state = Column(Integer)
 
     def __repr__(self):
-        return "<UserSession(sid='%s', user='%s', dn='%s', auth_state='%s')>" % (self.sid, self.user, self.dn, self.auth_state)
+        return "<UserSession(sid='%s', user='%s', dn='%s', auth_state='%s', last_used='%s')>" % \
+               (self.sid, self.user, self.dn, self.auth_state, self.last_used)
 
 
 class Cache(Base):
