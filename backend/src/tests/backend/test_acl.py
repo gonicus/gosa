@@ -6,6 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import json
 from unittest import mock, TestCase
 import pytest
 from gosa.backend.exceptions import ProxyException
@@ -1155,3 +1156,66 @@ class ACLResolverTestCase(TestCase):
             []  # no ACLSets
             ]
             self.resolver.load_from_object_database()
+
+
+@slow
+class ACLProxyTestCase(TestCase):
+    """ Test ACL handling in proxy mode"""
+    __remove_objects = []
+
+    env = None
+    ldap_base = None
+
+    def setUp(self):
+        super(ACLProxyTestCase, self).setUp()
+        self.env = Environment.getInstance()
+        self.resolver = PluginRegistry.getInstance("ACLResolver")
+        self.resolver.clear()
+        self.ldap_base = self.resolver.base
+
+    def tearDown(self):
+        super(ACLProxyTestCase, self).tearDown()
+        self.env.mode = "backend"
+        for dn in self.__remove_objects:
+            try:
+                obj = ObjectProxy(dn)
+                obj.remove()
+            except ProxyException:
+                pass
+
+    def test_load_from_database(self):
+        # prepare some AclRoles
+        role = ObjectProxy('ou=aclroles,dc=example,dc=net', 'AclRole')
+        role.name = "tester"
+        role.AclRoles = []
+        aclentry = {
+            "priority": 0,
+            "rolename": "tester"
+        }
+        role.AclRoles.append(aclentry)
+        role.commit()
+        self.__remove_objects.append('name=tester,ou=aclroles,dc=example,dc=net')
+
+        json_backend_file = self.env.config.get("backend-json.database-file")
+        with open(json_backend_file, "r+") as f:
+            content = f.read()
+            data = json.loads(content)
+            del_uuid = None
+            for uuid, entry in data.items():
+                if "AclRole" in entry and entry["AclRole"]["dn"] == "name=tester,ou=aclroles,dc=example,dc=net":
+                    del_uuid = uuid
+                    break
+            del data[del_uuid]
+            f.seek(0)
+            f.truncate(0)
+            f.write(json.dumps(data, indent=2))
+
+        # switch to proxy mode
+        self.env.mode = "proxy"
+
+        # load the acls
+        self.resolver.load_from_object_database()
+
+        # check the loaded acl
+        roles = self.resolver.list_role_names()
+        assert "tester" in roles
