@@ -74,6 +74,10 @@ class ExecutorWrapper(Plugin):
         self.executor.shutdown(True)
 
 
+# in proxy mode the usersessions are stored in memory (because we cannot write them to the database)
+sessions = {}
+
+
 class JsonRpcHandler(HSTSRequestHandler):
     """
     This is the tornado request handler which is responsible for serving the
@@ -82,9 +86,8 @@ class JsonRpcHandler(HSTSRequestHandler):
 
     # denial service for some time after login fails to often
     __dos_manager = {}
-    # in proxy mode the usersessions are stored in memory (because we cannot write them to the database)
-    __sessions = {}
     executor = None
+    __gc_job = None
 
     def initialize(self):
         self.dispatcher = PluginRegistry.getInstance('CommandRegistry')
@@ -93,8 +96,9 @@ class JsonRpcHandler(HSTSRequestHandler):
         self.ident = "GOsa JSON-RPC service (%s)" % VERSION
         self.executor = PluginRegistry.getInstance('ExecutorWrapper').executor
 
-        sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
-        sched.add_interval_job(self.__gc_sessions, minutes=180, tag='_internal', jobstore="ram")
+        if JsonRpcHandler.__gc_job is None:
+            sched = PluginRegistry.getInstance('SchedulerService').getScheduler()
+            JsonRpcHandler.__gc_job = sched.add_interval_job(self.__gc_sessions, minutes=180, tag='_internal', jobstore="ram")
 
     def get(self):
         """Allow the clients to get the XSRF cookie"""
@@ -150,36 +154,37 @@ class JsonRpcHandler(HSTSRequestHandler):
 
     def __save_user_session(self, user_session):
         if self.env.mode == "proxy":
-            self.__sessions[user_session.sid] = user_session
+            sessions[user_session.sid] = user_session
         else:
             with make_session() as session:
                 session.add(user_session)
 
     def __delete_user_session(self, user_session):
         if self.env.mode == "proxy":
-            if user_session.sid in self.__sessions:
-                del self.__sessions[user_session.sid]
+            if user_session.sid in sessions:
+                del sessions[user_session.sid]
         else:
             with make_session() as session:
                 session.delete(user_session)
 
     def __get_user_session(self, sid):
         if self.env.mode == "proxy":
-            if sid in self.__sessions:
-                del self.__sessions[sid]
+            if sid in sessions:
+                return sessions[sid]
             else:
                 return None
         else:
             with make_session() as session:
                 return session.query(UserSession).filter(UserSession.sid == sid).one_or_none()
 
-    def __gc_sessions(self):
+    @staticmethod
+    def __gc_sessions():
         """ delete sessions that not have been used for 10 hours """
         threshold_date = (datetime.datetime.now() - datetime.timedelta(hours=10))
-        if self.env.mode == "proxy":
-            for sid, user_session in self.__sessions.items():
+        if Environment.getInstance().env.mode == "proxy":
+            for sid, user_session in sessions.items():
                 if user_session.last_used < threshold_date:
-                    del self.__sessions[sid]
+                    del sessions[sid]
         else:
             with make_session() as session:
                 return session.query(UserSession).filter(UserSession.last_used < threshold_date).delete()
