@@ -5,13 +5,13 @@ domain = net.example
 id = backend
 idGenerator = "{%sn}-{%givenName[0-4]}"
 # master/slave mode
-mode = master
+mode = backend
 # domain to use for resolving _gosa-*._tcp DNS SRV entries
 # dns-resolve-domain =
 
 [http]
 host = 0.0.0.0
-port = 8000
+port = 8050
 
 [ldap]
 url = ldap://127.0.0.1/dc=example,dc=net
@@ -84,7 +84,7 @@ handlers=console
 
 [logger_gosa]
 # Desired loglevel: DEBUG, INFO, WARNING, ERROR, CRITICAL
-level=DEBUG
+level=INFO
 # Desired handler: syslog, console
 handlers=console
 qualname=gosa
