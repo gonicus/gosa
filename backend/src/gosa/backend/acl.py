@@ -1054,8 +1054,12 @@ class ACLResolver(Plugin):
             # make sure that the base has an ACL extension
             base = ObjectProxy(self.env.base)
             if not base.is_extended_by("Acl"):
-                base.extend("Acl")
-                base.commit()
+                if self.env.mode == "proxy":
+                    # it is not possible to change anything in proxy mode
+                    raise ACLException("No ACL extension in base object")
+                else:
+                    base.extend("Acl")
+                    base.commit()
 
             # Load Acls from the object DB
             self.load_from_object_database()
