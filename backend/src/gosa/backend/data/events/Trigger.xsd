@@ -17,11 +17,16 @@
     	<annotation>
     		<documentation>
 					The Trigger event can be used to make others do something, e.g. if the ACLs have changed
-					the Trigger event is used to notify the proxies about this and that they need die reload their ACLs
+					the Trigger event is used to notify the proxies about this and that they need die reload their ACLs.
+					The optional "Check" can be used to let the client verify things. The AclChanges event for example
+					notifies proxies about changes in the ACLs. Those changes are distributed via database replication
+					and the proxy has to verify that the replication has been successful and the new ACL settings
+					have been applied to the proxies local database or re-read the acls until that is done.
     		</documentation>
     	</annotation>
         <all>
     		<element name="Type" type="string"/>
+				<element name="Check" type="string"/>
     	</all>
     </complexType>
     

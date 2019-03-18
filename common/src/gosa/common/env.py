@@ -173,6 +173,18 @@ class Environment:
             self.__db_factory[index] = SessionFactory(self.config.get(index), session_events=session_events)
         return self.__db_factory[index]
 
+    def remove_flush_listeners(self):
+        """
+        remove all before_flush listeners, currently this is only use by a test,
+        that switched between proxied and normal mode.
+        """
+        for session in self.__db_session.values():
+            if event.contains(session, "before_flush", before_proxy_flush):
+                event.remove(session, "before_flush", before_proxy_flush)
+        self.__db_session = {}
+        for factory in self.__db_factory.values():
+            factory.reset_events()
+
     @staticmethod
     def getInstance():
         """
@@ -248,6 +260,9 @@ class SessionFactory(object):
                 event.listen(session, name, listener)
 
         return session
+
+    def reset_events(self):
+        self._engine_events = None
 
     @property
     def engine(self):

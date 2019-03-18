@@ -7,12 +7,12 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import json
+import time
 from unittest import mock, TestCase
 import pytest
 from gosa.backend.exceptions import ProxyException
 from gosa.backend.objects import ObjectProxy
 from gosa.common.components import PluginRegistry
-from gosa.common.env import make_session
 from tests.GosaTestCase import slow
 from gosa.backend.acl import ACL, ACLSet, ACLRole, ACLRoleEntry, ACLException
 from gosa.common import Environment
@@ -249,6 +249,9 @@ class ACLResolverTestCase(TestCase):
                 obj.remove()
             except ProxyException:
                 pass
+        # clear the json-db file
+        with open(self.env.config.get("backend-json.database-file"), 'w') as f:
+            f.write("{}")
 
     def test_member_owner_acls(self):
         # Ensure that we've got the right permissions to perform this tests.
@@ -1169,6 +1172,7 @@ class ACLProxyTestCase(TestCase):
     def setUp(self):
         super(ACLProxyTestCase, self).setUp()
         self.env = Environment.getInstance()
+        self.env.mode = "backend"
         self.resolver = PluginRegistry.getInstance("ACLResolver")
         self.resolver.clear()
         self.ldap_base = self.resolver.base
@@ -1176,12 +1180,16 @@ class ACLProxyTestCase(TestCase):
     def tearDown(self):
         super(ACLProxyTestCase, self).tearDown()
         self.env.mode = "backend"
+        # make sure we have no sessions/factories left in proxy mode
+        self.env.remove_flush_listeners()
+
         for dn in self.__remove_objects:
             try:
                 obj = ObjectProxy(dn)
                 obj.remove()
             except ProxyException:
                 pass
+        self.resolver.load_acls()
 
     def test_load_from_database(self):
         # prepare some AclRoles
@@ -1219,3 +1227,37 @@ class ACLProxyTestCase(TestCase):
         # check the loaded acl
         roles = self.resolver.list_role_names()
         assert "tester" in roles
+        self.env.mode = "backend"
+
+    def test_reload_with_checks(self):
+        checks = [{"role": "checks-tester", "member": "freich"}]
+        m_scheduler = mock.MagicMock()
+        with mock.patch.dict(PluginRegistry.modules, {'SchedulerService': m_scheduler}):
+            self.resolver.load_acls(checks)
+            # check that the loading has been re-scheduled
+            assert m_scheduler.getScheduler.return_value.add_date_job.called
+            assert len(self.resolver._checks_to_verify) == 1
+
+            # add the acl entries
+            role = ObjectProxy('dc=example,dc=net', 'AclRole')
+            role.name = "checks-tester"
+            role.AclRoles = []
+            aclentry = {
+                "priority": 0,
+                "rolename": "checks-tester"
+            }
+            role.AclRoles.append(aclentry)
+            role.commit()
+            self.__remove_objects.append('name=checks-tester,dc=example,dc=net')
+            self.resolver.load_acls()
+            # still check not passed
+            assert len(self.resolver._checks_to_verify) == 1
+            self.resolver.add_member_to_role("checks-tester", "freich")
+
+            # modifying the acls should already have triggered the reload and the queue should be empty
+            assert len(self.resolver._checks_to_verify) == 0
+            self.resolver.remove_member_from_role("checks-tester", "freich")
+            self.resolver.remove_aclset_by_base("dc=example,dc=net")
+            self.resolver.remove_role("checks-tester")
+
+

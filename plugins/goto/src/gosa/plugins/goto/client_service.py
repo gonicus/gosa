@@ -6,7 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import json
 import re
 import datetime
 import logging
@@ -88,6 +88,8 @@ class ClientService(Plugin):
     __client_call_queue = {}
     ppd_proxy = None
     __current_backend_rpc = None
+    # changes that need to be verified by the proxy to know if its in sync
+    __acl_change_checks = []
 
     def __init__(self):
         """
@@ -137,7 +139,14 @@ class ClientService(Plugin):
         elif event.__class__.__name__ == "ACLChanged":
             if self.env.mode != "proxy":
                 e = EventMaker()
-                trigger = e.Event(e.Trigger(e.Type(event.__class__.__name__)))
+                checks = self.__acl_change_checks
+                self.__acl_change_checks = []
+                trigger = e.Event(
+                    e.Trigger(
+                        e.Type(event.__class__.__name__),
+                        e.Check(json.dumps(checks))
+                    )
+                )
                 self.mqtt.send_event(trigger, "%s/proxy" % self.env.domain)
 
     def __refresh(self):
@@ -1165,6 +1174,8 @@ class ClientService(Plugin):
                          "members": [device_uuid],
                          "rolename": role_name}
             base.AclSets.append(acl_entry)
+            if self.env.mode != "proxy":
+                self.__acl_change_checks.append({"role": role_name, "member": device_uuid})
             base.commit()
             reload = True
 

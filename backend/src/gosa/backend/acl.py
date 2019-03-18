@@ -61,6 +61,7 @@ namespace gosa.common.handler {
 }
 @enduml
 """
+import datetime
 import re
 import ldap
 import logging
@@ -953,6 +954,9 @@ class ACLResolver(Plugin):
     _priority_ = 99
     _target_ = 'core'
 
+    _checks_to_verify = []
+    _reload_job = None
+
     def __init__(self):
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
@@ -1037,7 +1041,7 @@ class ACLResolver(Plugin):
         role.AclRoles = [aclentry]
         role.commit()
 
-    def load_acls(self):
+    def load_acls(self, checks=None, retries=0):
         """
         Load acls definitions from backend
         """
@@ -1063,6 +1067,34 @@ class ACLResolver(Plugin):
 
             # Load Acls from the object DB
             self.load_from_object_database()
+
+        if checks is not None and isinstance(checks, list):
+            # add to our list
+            self._checks_to_verify.extend(checks)
+
+        if len(self._checks_to_verify) > 0:
+            # verify if all checks are fulfilled, otherwise re-schedule loading
+            not_done = []
+            for check in self._checks_to_verify:
+                if "role" in check and "member" in check:
+                    if not self.is_member_of_role(check["member"], check["role"]):
+                        not_done.append(check)
+                else:
+                    self.log.warning("ignoring unhandled acl check: %s" % check)
+            self._checks_to_verify = not_done
+
+            if len(not_done):
+                if self._reload_job is None or self._reload_job.compute_next_run_time() is None:
+                    if retries < 10:
+                        # re-schedule job
+                        sobj = PluginRegistry.getInstance("SchedulerService")
+                        self._reload_job = sobj.getScheduler()\
+                            .add_date_job(self.load_acls,
+                                          datetime.datetime.now() + datetime.timedelta(seconds=5),
+                                          kwargs={"retries": retries+1},
+                                          tag='_internal', jobstore='ram')
+                    else:
+                        self.log.error('too many retries to verify checks %s' % not_done)
 
     @Command(__help__=N_("Checks if user has admin rights"))
     def isAdmin(self, user):
@@ -1176,6 +1208,8 @@ class ACLResolver(Plugin):
 
         roles = {}
         unresolved = []
+        # roles that could not be read
+        read_errors = []
 
         # Read all AclRole objects.
         dns = []
@@ -1195,6 +1229,7 @@ class ACLResolver(Plugin):
                 import traceback
                 traceback.print_exc()
                 self.log.warning("failed to load acl-role information for '%s': %s" % (entry_dn, str(e)))
+                read_errors.append(entry_dn)
                 continue
 
             # Create a new role object with the given name on demand.

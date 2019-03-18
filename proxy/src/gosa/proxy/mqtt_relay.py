@@ -1,3 +1,4 @@
+import json
 import logging
 from urllib.parse import urlparse
 
@@ -99,7 +100,13 @@ class MQTTRelayService(object):
                     if xml.Trigger.Type == "ACLChanged":
                         self.log.debug("ACLChanged trigger received, reloading ACLs")
                         resolver = PluginRegistry.getInstance("ACLResolver")
-                        resolver.load_acls()
+                        checks = None
+                        if hasattr(xml.Trigger, "Check") and len(xml.Trigger.Check) > 0:
+                            try:
+                                checks = json.loads(xml.Trigger.Check)
+                            except Exception as e:
+                                self.log.error("Error parsing ACLChanged-events Check content: %s" % str(e))
+                        resolver.load_acls(checks)
                     else:
                         self.log.warning("unhandled Trigger event of type: %s received" % xml.Trigger.Type)
 
