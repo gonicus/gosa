@@ -1489,6 +1489,12 @@ class ObjectIndex(Plugin):
 
         return _args
 
+    def get_extensions(self, uuid):
+        """ return the list of active extensions for the given uuid-object as store in the db """
+        with make_session() as session:
+            q = session.query(ExtensionIndex).filter(ExtensionIndex.uuid == uuid)
+            return [e.extension for e in q.all()]
+
     def search(self, query, properties, options=None, session=None):
         """
         Perform an index search

@@ -704,6 +704,11 @@ class ObjectFactory(object):
 
         # .. then find all active extensions
         if uuid:
+            current_db_extensions = []
+            if read_only is True:
+                index = PluginRegistry.getInstance("ObjectIndex")
+                current_db_extensions = index.get_extensions(uuid)
+
             for name, info in self.__object_types.items():
 
                 if not name in self.__object_types[id_base]['extended_by']:
@@ -712,9 +717,10 @@ class ObjectFactory(object):
                 be = ObjectBackendRegistry.getBackend(info['backend'])
                 classr = self.__xml_defs[name]
                 fixed_rdn = classr.FixedRDN.text if 'FixedRDN' in classr.__dict__ else None
-                if not info['base'] and (be.identify(dn, info['backend_attrs'], fixed_rdn) or
-                                         be.identify_by_uuid(uuid, info['backend_attrs'])):
-                    id_extend.append(name)
+                if not info['base'] and name in current_db_extensions or \
+                        ((be.identify(dn, info['backend_attrs'], fixed_rdn) or
+                          be.identify_by_uuid(uuid, info['backend_attrs']))):
+                        id_extend.append(name)
 
         if id_base or id_base_fixed:
             return id_base_fixed or id_base, id_extend
