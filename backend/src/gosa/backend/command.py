@@ -241,6 +241,7 @@ class CommandRegistry(Plugin):
 
         # Convert to list
         arg = list(arg)
+        orig_arg = arg.copy()
 
         # Check if call is interested in calling user ID, prepend it
         if self.callNeedsUser(func):
@@ -268,7 +269,7 @@ class CommandRegistry(Plugin):
             return method(*arg, **larg)
         else:
             # remove attached user session_id again
-            return self.dispatchRemote(user, session_id, *arg[2:], **larg)
+            return self.dispatchRemote(user, session_id, func, *orig_arg, **larg)
 
     def dispatchRemote(self, user, session_id, func, *arg, **larg):
         """

@@ -277,7 +277,7 @@ class JsonRpcHandler(HSTSRequestHandler):
             else:
                 # Remove current sid if present
                 if not self.get_secure_cookie('REMOTE_SESSION'):
-                    self.__delete_user_session(sid)
+                    self.__delete_user_session_by_sid(self.__get_user_session(sid))
 
                 self.log.error("login failed for user '%s'" % user)
                 result['state'] = AUTH_FAILED
