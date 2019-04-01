@@ -26,7 +26,7 @@ import multiprocessing
 import tornado.web
 import time
 
-from tornado import gen, concurrent
+from tornado import concurrent
 
 from gosa.backend.objects.index import UserSession
 from gosa.common.env import make_session
@@ -181,7 +181,7 @@ class JsonRpcHandler(HSTSRequestHandler):
     def __gc_sessions():
         """ delete sessions that not have been used for 10 hours """
         threshold_date = (datetime.datetime.now() - datetime.timedelta(hours=10))
-        if Environment.getInstance().env.mode == "proxy":
+        if Environment.getInstance().mode == "proxy":
             for sid, user_session in sessions.items():
                 if user_session.last_used < threshold_date:
                     del sessions[sid]
@@ -277,7 +277,7 @@ class JsonRpcHandler(HSTSRequestHandler):
             else:
                 # Remove current sid if present
                 if not self.get_secure_cookie('REMOTE_SESSION'):
-                    self.__delete_user_session_by_sid(self.__get_user_session(sid))
+                    self.__delete_user_session(self.__get_user_session(sid))
 
                 self.log.error("login failed for user '%s'" % user)
                 result['state'] = AUTH_FAILED
