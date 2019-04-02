@@ -112,9 +112,9 @@ class MosquittoAclHandler(BaseMosquittoClass):
             elif topic == "%s/client/broadcast" % self.env.domain:
                 # backend can publish/subscribe on client broadcast channel
                 is_allowed = True
-            elif topic == "%s/client/#" % self.env.domain:
+            elif topic == "%s/client/#" % self.env.domain and backend_type == BackendTypes.proxy:
                 # proxy can publish/subscribe on all client subtopics
-                is_allowed = backend_type == BackendTypes.proxy
+                is_allowed = True
             elif topic == "%s/proxy" % self.env.domain:
                 # proxy and backend can publish/subscribe on /proxy topic
                 is_allowed = True
