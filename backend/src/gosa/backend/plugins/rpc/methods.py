@@ -632,12 +632,13 @@ class RPCMethods(Plugin):
                         keywords[i] = " or ".join([x['word'] for x in r])
 
                     keywords_string = " ".join(keywords)
-                    self.log.info("no results found for: '%s' => re-trying with: '%s'" % (qstring, keywords_string))
-                    response['orig'] = qstring
-                    if qstring != keywords_string:
-                        response['fuzzy'] = keywords_string
-                        query_result, ranked = self.finalize_query(query, fltr, session, qstring=" ".join(keywords), order_by=order_by)
-                        total = query_result.count()
+                    if keywords_string != "":
+                        self.log.info("no results found for: '%s' => re-trying with: '%s'" % (qstring, keywords_string))
+                        response['orig'] = qstring
+                        if qstring != keywords_string:
+                            response['fuzzy'] = keywords_string
+                            query_result, ranked = self.finalize_query(query, fltr, session, qstring=" ".join(keywords), order_by=order_by)
+                            total = query_result.count()
 
             response['primary_total'] = total
             self.log.debug("Query: %s Keywords: %s, Filter: %s => %s results" % (qstring, keywords, fltr, total))
