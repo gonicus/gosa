@@ -1744,5 +1744,10 @@ class BackendRegistry(Plugin):
             return BackendTypes.proxy if self.env.mode == "proxy" else BackendTypes.active_master
 
         with make_session() as session:
-            res = session.query(RegisteredBackend.type).filter(RegisteredBackend.uuid == uuid).one_or_none()
-            return res[0] if res is not None else None
+            try:
+                res = session.query(RegisteredBackend.type).filter(RegisteredBackend.uuid == uuid).one_or_none()
+                return res[0] if res is not None else None
+            except Exception as e:
+                self.log.error('Error querying backend type from db: %s' % str(e))
+                return None
+
