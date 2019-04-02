@@ -41,6 +41,7 @@ qx.Theme.define("gosa.theme.Appearance", {
         };
       }
     },
+    "tabview/bar/button-menu": "slidebar/button-menu",
 
     "tabview-page/button/label": {
       alias: "label",
@@ -429,19 +430,8 @@ qx.Theme.define("gosa.theme.Appearance", {
 
       style: function() {
         return {
-          icon: "@Ligature/gear",
+          icon: "@Ligature/gear/22",
           margin: 4
-        }
-      }
-    },
-
-    "slidebar/button-menu/icon": {
-      include: "image",
-
-      style: function() {
-        return {
-          width: 22,
-          scale: true
         }
       }
     },
@@ -570,11 +560,22 @@ qx.Theme.define("gosa.theme.Appearance", {
     },
 
     "gosa-tabview-page": "tabview-page",
+    "gosa-tabview-page/button": {
+      include: "tabview-page/button",
+
+      style: function () {
+        return {
+          show: "icon",
+          padding: 10
+        }
+      }
+    },
     "gosa-tabview-page/button/icon": {
       include: "tabview-page/button/icon",
       style: function() {
         return {
           width: 35,
+          height: 35,
           scale: true
         }
       }
@@ -1229,6 +1230,7 @@ qx.Theme.define("gosa.theme.Appearance", {
       style: function() {
         return {
           width: 22,
+          maxHeight: 22,
           scale: true
         };
       }
@@ -1411,15 +1413,16 @@ qx.Theme.define("gosa.theme.Appearance", {
       alias: "atom",
 
       style: function(states) {
-        var icon = "@Ligature/check";
+        var icon = "@Ligature/check/16";
         if (states.undetermined) {
-          icon = "@Ligature/minus";
+          icon = "@Ligature/minus/16";
         }
 
         return {
           icon: icon,
           minWidth: 20,
-          gap: 8
+          gap: 8,
+          allowGrowY: false
         };
       }
     },
@@ -1445,9 +1448,7 @@ qx.Theme.define("gosa.theme.Appearance", {
 
         return {
           textColor: "white",
-          decorator: decorator,
-          width: 16,
-          scale: true
+          decorator: decorator
         };
       }
     },
@@ -1572,17 +1573,8 @@ qx.Theme.define("gosa.theme.Appearance", {
           padding: [0, 4, 0, 4],
           backgroundColor: states.hovered ? "mediumgray-light" : "transparent",
           decorator: decorator,
-          icon: "@Ligature/up",
+          icon: "@Ligature/up/10",
           margin: 0
-        };
-      }
-    },
-
-    "spinner/upbutton/icon": {
-      style: function() {
-        return {
-          height: 10,
-          scale: true
         };
       }
     },
@@ -1591,12 +1583,10 @@ qx.Theme.define("gosa.theme.Appearance", {
       include: "spinner/upbutton",
       style: function() {
         return {
-          icon: "@Ligature/down"
+          icon: "@Ligature/down/10"
         };
       }
     },
-
-    "spinner/downbutton/icon": "spinner/upbutton/icon",
 
     "tooltip": {
       include: "popup",

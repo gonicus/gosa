@@ -107,8 +107,19 @@ qx.Class.define("gosa.ui.controller.Objects", {
 
         win.add(w, {edge: 0});
         this._windowController.addWindow(win, obj);
-        win.addListenerOnce("resize", function(ev) {
-          (new qx.util.DeferredCall(win.center, win)).schedule();
+        var initial = true;
+        win.addListener("resize", function(ev) {
+          if (initial) {
+            (new qx.util.DeferredCall(win.center, win)).schedule();
+            initial = false;
+          } else {
+            // only center if bottom exceeds viewport
+            var bounds = win.getBounds();
+            // 48 is header height
+            if ((bounds.top + bounds.height + 48) > qx.bom.Viewport.getHeight()) {
+              win.center();
+            }
+          }
         }, this);
         win.open();
 

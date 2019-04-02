@@ -407,7 +407,7 @@ qx.Theme.define("gosa.theme.Decoration",
       include : "window",
       style : {
         radius : 0,
-        shadowColor      : undefined
+        shadowColor : null
       }
     },
 
