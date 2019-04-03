@@ -89,7 +89,7 @@ class SyncReplClient(Plugin):
         Start own synchronization after GOsa's main index refresh is done and the system is ready to process
         new changes.
         """
-        if event.__class__.__name__ == "IndexScanFinished":
+        if event.__class__.__name__ == "IndexSyncFinished":
             client = Syncrepl(data_path=os.sep.join((self.path, 'database.db')),
                               callback=ReplCallback(),
                               ldap_url=self.__url,
