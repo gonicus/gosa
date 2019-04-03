@@ -133,7 +133,7 @@ class ClientService(Plugin):
         """
         React on object modifications to keep active ACLs up to date.
         """
-        if event.__class__.__name__ == "IndexScanFinished":
+        if event.__class__.__name__ == "IndexSyncFinished":
             self.__refresh()
 
         elif event.__class__.__name__ == "ACLChanged":
@@ -964,7 +964,12 @@ class ClientService(Plugin):
     def _handleClientPing(self, data):
         data = data.ClientPing
         client = data.Id.text
-        self.__set_client_online(data.Id.text)
+        if GlobalLock.exists("scan_index"):
+            # ignore ping event
+            self.log.info("ignoring ping from client '%s' during indexing" % client)
+            return
+
+        self.__set_client_online(client)
         if client in self.__client:
             self.__client[client]['last-seen'] = datetime.datetime.utcnow()
 

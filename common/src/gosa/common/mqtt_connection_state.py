@@ -149,5 +149,5 @@ class MQTTConnectionHandler(MQTTHandler):
         """
         React on object modifications, send ready after index scan is finished
         """
-        if event.__class__.__name__ == "IndexScanFinished":
+        if event.__class__.__name__ == "IndexSyncFinished":
             self.send_ready()
