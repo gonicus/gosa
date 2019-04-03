@@ -27,7 +27,6 @@ from urllib.parse import urlparse
 
 import ldap
 import sqlalchemy
-from lxml.builder import ElementMaker
 from multiprocessing import RLock
 from passlib.hash import bcrypt
 from requests import HTTPError
@@ -41,8 +40,7 @@ from sqlalchemy_utils import TSVectorType
 import gosa
 from gosa.backend.components.httpd import get_server_url, get_internal_server_url
 from gosa.backend.objects.backend.back_foreman import ForemanBackendException
-from gosa.backend.objects.backend.registry import ObjectBackendRegistry
-from gosa.backend.utils import BackendTypes, print_query
+from gosa.backend.utils import BackendTypes
 from gosa.common.env import declarative_base, make_session
 from gosa.common.event import EventMaker
 from lxml import etree
@@ -105,7 +103,7 @@ class SearchObjectIndex(Base):
     search = Column(String)
     types = Column(String)
     search_vector = Column(TSVectorType('title', 'description', 'search', 'types',
-                                        weights={'title': 'A', 'types': 'B', 'description': 'C', 'search': 'C'},
+                                        weights={'title': 'A', 'types': 'D', 'description': 'C', 'search': 'B'},
                                         regconfig='pg_catalog.simple'
                                         ))
     object = relationship("ObjectInfoIndex", uselist=False, back_populates="search_object")
