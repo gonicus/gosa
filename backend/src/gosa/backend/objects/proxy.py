@@ -985,7 +985,14 @@ class ObjectProxy(object):
 
         zope.event.notify(ObjectChanged("post object remove", self.__base))
 
-    def commit(self, skip_write_hooks=False):
+    def commit(self, skip_write_hooks=False, skip_backend_writes=[]):
+        """
+
+        :param skip_write_hooks: do not execute the write hooks
+        :param skip_backend_writes: optional list of backend names that should be skipped when saving data (e.g. used to avoid sending
+        data back to the foreman backend when updating an object from an hook event
+        :return:
+        """
         if self.__read_only is True:
             # no changes in read-only mode
             return
@@ -1045,7 +1052,7 @@ class ObjectProxy(object):
             index.mark_as_dirty(self)
 
         # Handle commits
-        save_props = self.__base.commit()
+        save_props = self.__base.commit(skip_backend_writes=skip_backend_writes)
 
         # Skip further actions if we're in create mode
         if self.__base_mode == "create":
@@ -1064,7 +1071,7 @@ class ObjectProxy(object):
                 if not extension.uuid:
                     extension.uuid = self.__base.uuid
                 extension.dn = self.__base.dn
-                save_props.update(extension.commit(save_props))
+                save_props.update(extension.commit(save_props, skip_backend_writes=skip_backend_writes))
 
         # Did the commit result in a move?
         if self.__base_mode != "create" and self.dn != self.__base.dn:

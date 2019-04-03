@@ -427,7 +427,7 @@ class Foreman(Plugin):
             if update_data is not None:
                 object.apply_update(update_data)
             self.log.debug(">>> commiting '%s'" % object_type)
-            object.commit()
+            object.commit(skip_backend_writes=['foreman'])
 
     def remove_type(self, object_type, oid):
         ForemanBackend.modifier = "foreman"
@@ -1056,7 +1056,7 @@ class ForemanHookReceiver(object):
 
                         if len(res):
                             self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                            host = ObjectProxy(res[0]["dn"])
+                            host = ObjectProxy(res[0]["dn"], read_only=True)
 
                     if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
                         update['status'] = "unknown"
@@ -1081,7 +1081,7 @@ class ForemanHookReceiver(object):
 
                         if len(res):
                             self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                            host = ObjectProxy(res[0]["dn"])
+                            host = ObjectProxy(res[0]["dn"], read_only=True)
 
             foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
             if foreman_object and host:

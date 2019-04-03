@@ -848,7 +848,7 @@ class Object(object):
                 self.log.error("Error retrieving final dn of '%s' in mode '%s': %s" % (base_object.dn, self._mode, str(e)))
                 return base_object.dn
 
-    def commit(self, propsFromOtherExtensions=None):
+    def commit(self, propsFromOtherExtensions=None, skip_backend_writes=[]):
         """
         Commits changes of an object to the corresponding backends.
         """
@@ -978,7 +978,7 @@ class Object(object):
             index.currently_in_creation.append(self)
 
         # First, take care about the primary backend...
-        if p_backend in toStore:
+        if p_backend in toStore and p_backend not in skip_backend_writes:
             beAttrs = self._backendAttrs[p_backend] if p_backend in self._backendAttrs else {}
             be = ObjectBackendRegistry.getBackend(p_backend)
             uuid = self.uuid
@@ -1030,7 +1030,7 @@ class Object(object):
         for backend, data in toStore.items():
 
             # Skip primary backend - already done
-            if backend == p_backend:
+            if backend == p_backend or backend in skip_backend_writes:
                 continue
 
             be = ObjectBackendRegistry.getBackend(backend)

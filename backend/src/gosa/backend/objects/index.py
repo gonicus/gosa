@@ -539,7 +539,7 @@ class ObjectIndex(Plugin):
     def get_dirty_objects(self):
         return self.__dirty
 
-    def add_delayed_update(self, obj, update, inject=False):
+    def add_delayed_update(self, obj, update, inject=False, skip_backend_writes=[]):
         """
         Add a delayed update for an object that is currently being committed (marked "dirty").
         This update will be processed after the ongoing commit has been completed.
@@ -551,13 +551,14 @@ class ObjectIndex(Plugin):
         if not self.is_dirty(obj.uuid):
             self.log.warning("Trying to add a delayed update to a non-dirty object '%s'" % obj.uuid)
             obj.apply_update(update)
-            obj.commit()
+            obj.commit(skip_backend_writes=skip_backend_writes)
             return
 
         self.log.info("adding delayed update to %s (%s)" % (obj.uuid, obj.dn))
         self.__dirty[obj.uuid]["updates"].append({
             "inject": inject,
-            "data": update
+            "data": update,
+            "skip_backend_writes": skip_backend_writes
         })
 
     def unmark_as_dirty(self, id):
@@ -584,7 +585,7 @@ class ObjectIndex(Plugin):
                         self.log.info("applying %s to %s" % (update["data"], obj.uuid))
                         new_obj.apply_update(update["data"])
                 del self.__dirty[uuid]
-                new_obj.commit()
+                new_obj.commit(skip_backend_writes=entry["skip_backend_writes"])
             else:
                 del self.__dirty[uuid]
 
@@ -866,6 +867,7 @@ class ObjectIndex(Plugin):
             oids = sorted(res.keys(), key=len)
 
             with Pool(processes=self.procs) as pool:
+                self.log.info("processing objects with %d entries" % len(oids))
                 result = pool.starmap_async(process_objects, [(oid,) for oid in oids], chunksize=1)
                 while not result.ready():
                     now = time.time()
