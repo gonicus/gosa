@@ -106,7 +106,7 @@ class MQTTRPCService(object):
             self.log.error("KeyError: %s" % e)
             raise BadServiceRequest(message)
 
-        self.log.debug("received call [%s] for %s: %s(%s,%s)" % (id_, topic, name, args, kwargs))
+        self.log.debug("received call [%s, user=%s, session-id=%s] for %s: %s(%s,%s)" % (id_, user, sid, topic, name, args, kwargs))
 
         try:
             return id_, self.__command_registry.dispatch(user, sid, name, *args, **kwargs)
