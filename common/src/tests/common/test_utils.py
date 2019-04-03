@@ -10,6 +10,7 @@
 import unittest
 import unittest.mock
 import pytest
+from gosa.common import Environment
 from gosa.common.utils import *
 from datetime import timedelta
 from lxml import objectify
@@ -278,8 +279,9 @@ class CommonUtilsTestCase(unittest.TestCase):
                 self.port = p
 
         with unittest.mock.patch("gosa.common.utils.dns.resolver.query", return_value=[Result(100, 50, "localhost_", 8080)]):
-            print(find_api_service())
             assert find_api_service() == ["https://localhost:8080/rpc"]
+            with unittest.mock.patch.object(Environment.getInstance().config, "get", side_effect=['example.net', '10:0:gosa.intranet.gonicus.de:8050']):
+                assert find_api_service() == ["https://gosa.intranet.gonicus.de:8050/rpc"]
 
     def test_find_bus_service(self):
 
@@ -303,5 +305,10 @@ class CommonUtilsTestCase(unittest.TestCase):
             m_query.side_effect = dns.resolver.NXDOMAIN
             with unittest.mock.patch("gosa.common.utils.socket.getfqdn", return_value="invalid-domain"):
                 assert find_bus_service() == []
+
+            with unittest.mock.patch.object(Environment.getInstance().config, "get", side_effect=['example.net', '10:50:gosa-bus2.intranet.gonicus.de:8883, 10:60:gosa-bus1.intranet.gonicus.de:8883']):
+                res = find_bus_service()
+                assert res[0] == ("gosa-bus1.intranet.gonicus.de", 8883)
+                assert res[1] == ("gosa-bus2.intranet.gonicus.de", 8883)
 
 
