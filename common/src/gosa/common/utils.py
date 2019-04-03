@@ -21,10 +21,8 @@ import time
 import tempfile
 import lxml
 import urllib.request as urllib2
-import socket
 import logging
 import dns.resolver
-from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from tokenize import generate_tokens
 from token import STRING
@@ -303,34 +301,46 @@ def _find_service(what):
     _gosa-api._tcp.example.com. 3600  IN  SRV  10  0  8050  gosa.intranet.gonicus.de.
     _gosa-bus._tcp.example.com. 3600  IN  SRV  10  50  8883  gosa-bus.intranet.gonicus.de.
                                       IN  SRV  10  60  8883  gosa-bus2.intranet.gonicus.de.
+
+    They can also be added to the config file if no dns src records are available.
+    The first one has the highest priority
+
+    [core]
+    #             priority:weight:port:hostname
+    dns-srv-bus = 10:50:gosa-bus2.intranet.gonicus.de:8883, 10:50:gosa-bus1.intranet.gonicus.de:8883
+    dns-srv-api = 10:0:gosa.intranet.gonicus.de:8050
     """
     log = logging.getLogger(__name__)
 
-    fqdn = socket.getfqdn()
-    if not "." in fqdn:
-        log.error("invalid DNS configuration: there is no domain configured for this client")
-
-    res = []
-
     # import locally, otherwise we have a cyclic dependency
     from gosa.common import Environment
-    domain = Environment.getInstance().config.get('core.dns-resolve-domain')
+    env = Environment.getInstance()
+    res = []
+
+    domain = env.config.get('core.dns-resolve-domain')
     if domain is None:
         domain = ""
     else:
         domain = ".%s." % domain
     for part in what:
-        try:
-            log.debug("looking for DNS SRV records: _gosa-%s._tcp" % part)
-            for data in dns.resolver.query("_gosa-%s._tcp%s" % (part, domain), "SRV"):
-                res.append((data.priority, data.weight, str(data.target)[:-1], data.port))
+        from_config = env.config.get('core.dns-srv-%s' % part)
+        if from_config is not None:
+            # use values from config
+            entries = [x.strip() for x in from_config.split(',')]
+            for x in entries:
+                res.append(tuple(x.split(':')))
+        else:
+            try:
+                log.debug("looking for DNS SRV records: _gosa-%s._tcp" % part)
+                for data in dns.resolver.query("_gosa-%s._tcp%s" % (part, domain), "SRV"):
+                    res.append((data.priority, data.weight, str(data.target)[:-1], data.port))
 
-        except dns.resolver.NXDOMAIN:
-            pass
+            except dns.resolver.NXDOMAIN:
+                pass
 
     # Sort by weight (highest first)
     res = sorted(res, key=lambda x: x[1], reverse=True)
-    return [(entry[2], entry[3]) for entry in res]
+    return [(entry[2], int(entry[3])) for entry in res]
 
 
 def dmi_system(item, data=None):
