@@ -38,4 +38,4 @@ headers = {
     'HTTP_X_HUB_SIGNATURE': signature
 }
 
-requests.post("%s:%s/hooks" % (GOSA_SERVER, GOSA_PORT), data=payload, headers=headers)
+requests.post("%s:%s/hooks" % (GOSA_SERVER, GOSA_PORT), data=payload, headers=headers, timeout=30)
