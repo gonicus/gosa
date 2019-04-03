@@ -131,10 +131,10 @@ class JsonRpcHandler(HSTSRequestHandler):
             self.finish(dumps(dict(result=None, error=error, id=None)))
             raise e
         else:
+            self.set_header("Content-Type", "application/json")
             if is_future(resp):
                 resp = yield resp
             self.write(dumps(resp))
-            self.set_header("Content-Type", "application/json")
 
     def get_lock_result(self, user):
         cls = self.__class__
@@ -220,13 +220,13 @@ class JsonRpcHandler(HSTSRequestHandler):
         if not isinstance(params, list) and not isinstance(params, dict):
             raise ValueError(C.make_error("PARAMETER_LIST_OR_DICT"))
 
-        # execute command if it is allowed without login
-        if method in no_login_commands:
-            return self.dispatch(method, params, jid)
-
         # Check if we're globally locked currently
         if GlobalLock.exists("scan_index"):
             raise FilterException(C.make_error('INDEXING', "base"))
+
+        # execute command if it is allowed without login
+        if method in no_login_commands:
+            return self.dispatch(method, params, jid)
 
         cls = self.__class__
 
