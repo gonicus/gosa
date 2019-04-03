@@ -302,10 +302,6 @@ class CommonUtilsTestCase(unittest.TestCase):
             m_query.return_value = [Result(100, 10, "localhost1_", 8080), Result(100, 50, "localhost_", 8080)]
             assert find_bus_service()[0] == ("localhost", 8080)
 
-            m_query.side_effect = dns.resolver.NXDOMAIN
-            with unittest.mock.patch("gosa.common.utils.socket.getfqdn", return_value="invalid-domain"):
-                assert find_bus_service() == []
-
             with unittest.mock.patch.object(Environment.getInstance().config, "get", side_effect=['example.net', '10:50:gosa-bus2.intranet.gonicus.de:8883, 10:60:gosa-bus1.intranet.gonicus.de:8883']):
                 res = find_bus_service()
                 assert res[0] == ("gosa-bus1.intranet.gonicus.de", 8883)
