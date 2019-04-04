@@ -106,6 +106,7 @@ class Object(object):
     attributesInSaveOrder = None
     _validator = None
     _read_only = False
+    _from_db_only = False
 
     def __saveOrder(self):
         """
@@ -150,10 +151,11 @@ class Object(object):
         return res
 
     def __init__(self, where=None, mode="update", data=None, force_update=False, read_only=False,
-                 skip_value_population=False):
+                 skip_value_population=False, from_db_only=False):
         self.env = Environment.getInstance()
         self._validator = Validator(self)
         self._read_only = read_only
+        self._from_db_only = from_db_only
 
         # Instantiate Backend-Registry
         self._reg = ObjectBackendRegistry.getInstance()
@@ -312,14 +314,14 @@ class Object(object):
         if is_uuid(where):
             #pylint: disable=E1101
             if self._base_object:
-                self.dn = self._reg.uuid2dn(self._backend, where, read_only=self._read_only)
+                self.dn = self._reg.uuid2dn(self._backend, where, from_db_only=self._from_db_only)
             else:
                 self.dn = None
 
             self.uuid = where
         else:
             self.dn = where
-            self.uuid = self._reg.dn2uuid(self._backend, where, read_only=self._read_only)
+            self.uuid = self._reg.dn2uuid(self._backend, where, from_db_only=self._from_db_only)
 
         # Get last change timestamp
         self.orig_dn = self.dn
@@ -332,7 +334,7 @@ class Object(object):
 
         changed_attributes = []
 
-        if self._read_only is True:
+        if self._from_db_only is True:
             # just load everything from database
             index = PluginRegistry.getInstance("ObjectIndex")
             res = index.search({"uuid": self.uuid}, {k: 1 for k in self.myProperties.keys()})
@@ -457,7 +459,7 @@ class Object(object):
             # Convert values from incoming backend-type to required type
             if self.myProperties[key]['value']:
                 a_type = self.myProperties[key]['type']
-                be_type = self.myProperties[key]['backend_type'] if self._read_only is False else "String"
+                be_type = self.myProperties[key]['backend_type'] if self._from_db_only is False else "String"
 
                 #  Convert all values to required type
                 if not atypes[a_type].is_valid_value(self.myProperties[key]['value']):

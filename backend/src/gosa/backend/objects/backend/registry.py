@@ -32,9 +32,9 @@ class ObjectBackendRegistry(object):
             clazz = entry.load()
             ObjectBackendRegistry.backends[clazz.__name__] = clazz()
 
-    def dn2uuid(self, backend, dn, read_only=False):
+    def dn2uuid(self, backend, dn, from_db_only=False):
         uuid = ObjectBackendRegistry.backends[backend].dn2uuid(dn)
-        if uuid is None and read_only is True:
+        if uuid is None and from_db_only is True:
             # fallback to db
             if self.__index is None:
                 self.__index = PluginRegistry.getInstance("ObjectIndex")
@@ -43,9 +43,9 @@ class ObjectBackendRegistry(object):
                 uuid = res[0]['_uuid']
         return uuid
 
-    def uuid2dn(self, backend, uuid, read_only=False):
+    def uuid2dn(self, backend, uuid, from_db_only=False):
         dn = ObjectBackendRegistry.backends[backend].uuid2dn(uuid)
-        if dn is None and read_only is True:
+        if dn is None and from_db_only is True:
             # fallback to db
             if self.__index is None:
                 self.__index = PluginRegistry.getInstance("ObjectIndex")

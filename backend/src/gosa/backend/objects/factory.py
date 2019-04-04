@@ -667,7 +667,7 @@ class ObjectFactory(object):
     def isBaseType(self, type):
         return self.__object_types[type]["base"]
 
-    def identifyObject(self, dn, read_only=False):
+    def identifyObject(self, dn, from_db_only=False):
         id_base = None
         id_base_fixed = None
         id_extend = []
@@ -694,7 +694,7 @@ class ObjectFactory(object):
                                 raise FactoryException(C.make_error("FACTORY_TYPE_MISMATCH", dn, type1=id_base, type2=name))
                             id_base = name
 
-        if uuid is None and read_only is True:
+        if uuid is None and from_db_only is True:
             # identify only by database
             index = PluginRegistry.getInstance("ObjectIndex")
             res = index.search({'dn': dn}, {'uuid': 1})
@@ -705,7 +705,7 @@ class ObjectFactory(object):
         # .. then find all active extensions
         if uuid:
             current_db_extensions = []
-            if read_only is True:
+            if from_db_only is True:
                 index = PluginRegistry.getInstance("ObjectIndex")
                 current_db_extensions = index.get_extensions(uuid)
 

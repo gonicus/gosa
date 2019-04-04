@@ -257,7 +257,7 @@ class Foreman(Plugin):
 
         ForemanBackend.modifier = None
 
-    def get_object(self, object_type, oid, create=True, data=None, read_only=False):
+    def get_object(self, object_type, oid, create=True, data=None, read_only=False, from_db_only=False):
         backend_attributes = self.factory.getObjectBackendProperties(object_type)
         foreman_object = None
 
@@ -318,7 +318,8 @@ class Foreman(Plugin):
             foreman_object = ObjectProxy(
                 res[0]["dn"],
                 data={object_type: {"Foreman": data}} if data is not None else None,
-                read_only=read_only
+                read_only=read_only,
+                from_db_only=from_db_only
             )
 
         return foreman_object, False
@@ -746,7 +747,7 @@ class Foreman(Plugin):
 
         ForemanBackend.modifier = "foreman"
 
-        device, delay_update = self.get_object("ForemanHost", hostname, create=False)
+        device, delay_update = self.get_object("ForemanHost", hostname, create=False, from_db_only=True)
         update = {}
 
         if device is None:
@@ -1030,6 +1031,7 @@ class ForemanHookReceiver(object):
             host = None
             update = {'__extensions__': []}
             if foreman_type == "host":
+                # TODO: check is there are changes in the data we are interested in and skip further processing of not
                 id = payload_data["id"] if "id" in payload_data else None
                 foreman.mark_for_parameter_setting(data['object'], {
                     "status": "created",
@@ -1056,7 +1058,7 @@ class ForemanHookReceiver(object):
 
                         if len(res):
                             self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                            host = ObjectProxy(res[0]["dn"], read_only=True)
+                            host = ObjectProxy(res[0]["dn"], from_db_only=True)
 
                     if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
                         update['status'] = "unknown"
@@ -1081,9 +1083,9 @@ class ForemanHookReceiver(object):
 
                         if len(res):
                             self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                            host = ObjectProxy(res[0]["dn"], read_only=True)
+                            host = ObjectProxy(res[0]["dn"], from_db_only=True)
 
-            foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None)
+            foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None, from_db_only=True)
             if foreman_object and host:
                 if foreman_object.uuid != host.uuid:
                     self.log.debug("using known host instead of creating a new one")

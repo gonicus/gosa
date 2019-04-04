@@ -111,10 +111,11 @@ class ObjectProxy(object):
     __attribute_change_hooks = None
     __attribute_change_write_hooks = None
     __read_only = False
+    __from_db_only = False
     __open_mode = None
 
     def __init__(self, _id, what=None, user=None, session_id=None,
-                 data=None, read_only=False, skip_value_population=False, open_mode=None):
+                 data=None, read_only=False, skip_value_population=False, open_mode=None, from_db_only=False):
         self.__env = Environment.getInstance()
         self.__log = getLogger(__name__)
         self.__factory = ObjectFactory.getInstance()
@@ -134,6 +135,8 @@ class ObjectProxy(object):
         self.__foreign_attrs = []
         self.__all_method_names = []
         self.__read_only = self.__env.mode == "proxy" or read_only
+        # do not read from backends, just from db
+        self.__from_db_only = self.__read_only or from_db_only
         # hooks that are triggered on every setattr
         self.__attribute_change_hooks = {}
         # hooks that are triggered when the attribute change is committed
@@ -154,7 +157,7 @@ class ObjectProxy(object):
         object_types = self.__factory.getObjectTypes()
 
         base_mode = "update"
-        base, extensions = self.__factory.identifyObject(dn_or_base, read_only=self.__read_only)
+        base, extensions = self.__factory.identifyObject(dn_or_base, from_db_only=self.__from_db_only)
         if what:
             if what not in object_types:
                 raise ProxyException(C.make_error('OBJECT_UNKNOWN_TYPE', type=type))
@@ -181,6 +184,7 @@ class ObjectProxy(object):
                                                mode=base_mode,
                                                data=data[base] if data is not None and base in data else None,
                                                read_only=self.__read_only,
+                                               from_db_only=self.__from_db_only,
                                                skip_value_population=skip_value_population)
         self.__base._owner = self.__current_user
         self.__base._session_id = self.__current_session_id
@@ -193,6 +197,7 @@ class ObjectProxy(object):
                 self.__extensions[extension] = self.__factory.getObject(extension, self.__base.uuid,
                                                                         data=data[extension] if data is not None and extension in data else None,
                                                                         read_only=self.__read_only,
+                                                                        from_db_only=self.__from_db_only,
                                                                         skip_value_population=skip_value_population)
                 self.__extensions[extension].dn = self.__base.dn
                 self.__extensions[extension].parent = self
