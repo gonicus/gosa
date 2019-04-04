@@ -319,7 +319,8 @@ class Foreman(Plugin):
                 res[0]["dn"],
                 data={object_type: {"Foreman": data}} if data is not None else None,
                 read_only=read_only,
-                from_db_only=from_db_only
+                from_db_only=from_db_only,
+                skip_value_population=True
             )
 
         return foreman_object, False

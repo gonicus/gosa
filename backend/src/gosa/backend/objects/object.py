@@ -248,7 +248,7 @@ class Object(object):
 
     def __update_population(self, attribute=None):
         # value population is only needed if we want to change attribute values
-        if self._read_only is True:
+        if self._read_only is True or self._from_db_only is True:
             return
 
         # collect current attribute values
