@@ -143,7 +143,7 @@ class ObjectHandler(ObjectBackend):
                 if len(res) != 1:
                     raise EntryNotFound(C.make_error("NO_UNIQUE_ENTRY", object=foreignObject, attribute=foreignAttr, value=value))
                 else:
-                    object_mapping[value] = ObjectProxy(res[0]['dn'], from_db_only=True)
+                    object_mapping[value] = ObjectProxy(res[0]['dn'])
 
             # Calculate value that have to be removed/added
             remove = list(set(data[targetAttr]['orig']) - set(data[targetAttr]['value']))
