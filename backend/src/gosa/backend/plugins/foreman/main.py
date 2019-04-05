@@ -9,6 +9,7 @@
 # See the LICENSE file in the project's top-level directory for details.
 import collections
 import datetime
+import hashlib
 import logging
 import uuid
 import sys
@@ -26,7 +27,7 @@ from gosa.backend.exceptions import ProxyException
 from gosa.backend.components.httpd import get_server_url
 from gosa.backend.lock import GlobalLock
 from gosa.backend.objects import ObjectProxy, ObjectFactory
-from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValueIndex, Cache
+from gosa.backend.objects.index import ObjectInfoIndex, ExtensionIndex, KeyValueIndex, Cache, Schema
 from gosa.backend.routes.sse.main import SseHandler
 from gosa.common import Environment
 from gosa.common.components import Plugin, Command
@@ -762,7 +763,7 @@ class Foreman(Plugin):
             device.commit()
 
             # re-open to get a clean object
-            device = ObjectProxy(device.dn)
+            device = ObjectProxy(device.dn, from_db_only=True)
             delay_update = False
         else:
             self.log.debug("Realm request: use existing host with hostname: %s" % hostname)
@@ -938,6 +939,7 @@ class ForemanHookReceiver(object):
         self.type = N_("Foreman hook event")
         self.env = Environment.getInstance()
         self.log = logging.getLogger(__name__)
+        self.index = PluginRegistry.getInstance("ObjectIndex")
 
     def process_queue(self):
         if Foreman.syncing is True:
@@ -964,6 +966,34 @@ class ForemanHookReceiver(object):
             self._handle_data(data)
         except Exception as e:
             self.log.error("Error during webhook processing: %s" % str(e))
+
+    def check_for_change(self, uuid, hash, save_if_changed=True):
+        """ Check if the incoming data contains a change we are interested in"""
+        changed = False
+        with make_session() as session:
+            hash_entry = session.query(Schema).get('%s|Foreman' % uuid)
+            if hash_entry is None:
+                changed = True
+            else:
+                changed = hash_entry == hash
+
+        if save_if_changed is True and changed is True:
+            self._save_hash(uuid, hash)
+        return changed
+
+    def __to_hash(self, filtered_payload):
+        dump = ""
+        for key in sorted(filtered_payload):
+            dump += "%s=%s," % (key, filtered_payload[key])
+        md5s = hashlib.md5()
+        md5s.update(dump.encode('utf-8'))
+        return md5s.hexdigest()
+
+    def _save_hash(self, uuid, hash):
+        with make_session() as session:
+            schema = Schema(type='%s|Foreman' % uuid, hash=hash)
+            session.add(schema)
+            session.commit()
 
     def _handle_data(self, data):
         foreman = PluginRegistry.getInstance("Foreman")
@@ -1024,15 +1054,20 @@ class ForemanHookReceiver(object):
             uuid_attribute = backend_attributes["Foreman"]["_uuidSourceAttribute"] \
                 if '_uuidSourceAttribute' in backend_attributes["Foreman"] else backend_attributes["Foreman"]["_uuidAttribute"]
 
+        backend_props = [k for k in factory.getObjectProperties(object_type).keys() if "Foreman" in factory.getObjectProperties(object_type)[k]["backend"]]
+        filtered_payload = {k: v for (k, v) in payload_data.items() if k in backend_props}
+
         ForemanBackend.modifier = "foreman"
         backend_data = {}
         delay_update = False
+        object_uuid = None
 
         if data['event'] == "after_commit":
             host = None
             update = {'__extensions__': []}
+            filtered_payload_hash = self.__to_hash(filtered_payload)
             if foreman_type == "host":
-                # TODO: check is there are changes in the data we are interested in and skip further processing of not
+
                 id = payload_data["id"] if "id" in payload_data else None
                 foreman.mark_for_parameter_setting(data['object'], {
                     "status": "created",
@@ -1045,6 +1080,7 @@ class ForemanHookReceiver(object):
                         if entry["obj"].is_extended_by("ForemanHost") and \
                                 hasattr(entry["obj"], "macAddress") and entry["obj"].macAddress == payload_data["mac"]:
                             host = entry["obj"]
+                            object_uuid = entry["obj"].uuid
                             self.log.debug("found dirty host %s" % entry["obj"].dn)
                             delay_update = True
                             break
@@ -1059,7 +1095,15 @@ class ForemanHookReceiver(object):
 
                         if len(res):
                             self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                            host = ObjectProxy(res[0]["dn"], from_db_only=True)
+                            object_uuid = res[0]["_uuid"]
+                            if self.check_for_change(object_uuid, filtered_payload_hash, save_if_changed=True) is True:
+                                host = ObjectProxy(res[0]["dn"], from_db_only=True)
+                            else:
+                                self.log.debug("skipping update for %s: no change detected" % res[0]["dn"])
+                                return
+                    elif self.check_for_change(object_uuid, filtered_payload_hash, save_if_changed=True) is False:
+                        self.log.debug("skipping update for %s: no change detected" % host.dn)
+                        return
 
                     if host is not None and foreman_type != "discovered_host" and host.is_extended_by("ForemanHost"):
                         update['status'] = "unknown"
@@ -1071,6 +1115,7 @@ class ForemanHookReceiver(object):
                                 entry["obj"].is_extended_by("simpleSecurityObject") and \
                                 hasattr(entry["obj"], "cn") and entry["obj"].cn == payload_data["name"]:
                             host = entry["obj"]
+                            object_uuid = entry["obj"].uuid
                             self.log.debug("found dirty host %s" % entry["obj"].dn)
                             delay_update = True
                             break
@@ -1084,7 +1129,16 @@ class ForemanHookReceiver(object):
 
                         if len(res):
                             self.log.debug("update received for existing host with dn: %s" % res[0]["dn"])
-                            host = ObjectProxy(res[0]["dn"], from_db_only=True)
+                            object_uuid = res[0]["_uuid"]
+                            if self.check_for_change(object_uuid, filtered_payload_hash, save_if_changed=True) is True:
+                                host = ObjectProxy(res[0]["dn"], from_db_only=True)
+                            else:
+                                self.log.debug("skipping update for %s: no change detected" % res[0]["dn"])
+                                return
+
+                    elif self.check_for_change(object_uuid, filtered_payload_hash, save_if_changed=True) is False:
+                        self.log.debug("skipping update for %s: no change detected" % host.dn)
+                        return
 
             foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None, from_db_only=True)
             if foreman_object and host:
@@ -1120,7 +1174,7 @@ class ForemanHookReceiver(object):
                                 delay_update=delay_update)
 
             if foreman_type == "host" and old_build_state is True and foreman_object.build is False and \
-                            foreman_object.status == "ready":
+                    foreman_object.status == "ready":
                 # send notification
                 e = EventMaker()
                 ev = e.Event(e.Notification(

@@ -428,7 +428,7 @@ class ClientService(Plugin):
                            {'dn': 1})
         if len(res) != 1:
             raise ValueError(C.make_error("CLIENT_NOT_FOUND", client=device_uuid, status_code=404))
-        return ObjectProxy(res[0]['dn'], read_only=read_only)
+        return ObjectProxy(res[0]['dn'], read_only=read_only, from_db_only=True)
 
     @Command(__help__=N_("Set system status"), type="READONLY")
     def systemGetStatus(self, device_uuid):
@@ -668,7 +668,7 @@ class ClientService(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({"_type": "User", "uid": user_name}, {"dn": 1})
         for u in res:
-            user = ObjectProxy(u["dn"])
+            user = ObjectProxy(u["dn"], from_db_only=True)
             if not user.is_extended_by("GosaAccount"):
                 user.extend("GosaAccount")
             user.gotoLastSystemLogin = datetime.datetime.now()

@@ -651,7 +651,7 @@ class RPCMethods(Plugin):
                     rank = tuple[1]
                 else:
                     item = tuple
-                    rank = 0
+                    rank = 1
                 self.update_res(res, item, user, rank, these=these, actions=actions)
                 counter += 1
                 if counter >= max_results:

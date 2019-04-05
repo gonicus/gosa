@@ -13,6 +13,8 @@ import os
 import pytest
 from unittest import TestCase, mock
 
+from gosa.backend.objects.index import Schema
+from gosa.common.env import make_session
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application, HTTPError
 
@@ -526,6 +528,9 @@ class ForemanHookTestCase(RemoteTestCase):
             foreman = ForemanPlugin()
             foreman.serve()
             foreman.remove_type("ForemanHost", self._host_cn)
+        with make_session() as session:
+            session.query(Schema).filter(Schema.type.endswith('|Foreman')).delete()
+            session.commit()
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
@@ -542,8 +547,10 @@ class ForemanHookTestCase(RemoteTestCase):
         }
         return headers, payload
 
+    @mock.patch("gosa.backend.objects.backend.back_foreman.requests.put")
+    @mock.patch("gosa.backend.objects.backend.back_foreman.requests.post")
     @mock.patch("gosa.backend.objects.backend.back_foreman.requests.get")
-    def test_host_request(self, m_get):
+    def test_host_request(self, m_get, m_post, m_put):
 
         m_get.return_value = MockResponse('{\
             "build_status": 0\
@@ -576,11 +583,21 @@ class ForemanHookTestCase(RemoteTestCase):
         AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
         logging.getLogger(__name__).info("finished update")
 
+        assert m_get.called is False
+        assert m_put.called is False
+        assert m_post.called is False
+
         # check if the host has been updated
         device = ObjectProxy(host_dn)
         assert device.cn == "new-foreman-host"
         assert device.ipHostNumber == payload_data["data"]["host"]["host"]["ip"]
         assert device.macAddress == payload_data["data"]["host"]["host"]["mac"]
+
+        # trigger hook again and check if the updates have been skipped (no save to foremen, no requests from foreman)
+        AsyncHTTPTestCase.fetch(self, "/hooks/", method="POST", headers=headers, body=payload)
+        assert m_get.called is False
+        assert m_put.called is False
+        assert m_post.called is False
 
         # delete the host
         payload_data = {

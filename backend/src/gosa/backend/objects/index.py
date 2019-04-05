@@ -70,8 +70,6 @@ from gosa.backend.routes.system import State
 Base = declarative_base()
 make_searchable(Base.metadata)
 
-last_uuid = None
-
 
 # Register the errors handled  by us
 C.register_codes(dict(
@@ -355,7 +353,7 @@ class ObjectIndex(Plugin):
 
                     # If there is already a collection, check if there is a newer schema available
                     if self.isSchemaUpdated(schema):
-                        session.query(Schema).filter(Schema.type == 'objects').delete()
+                        session.query(Schema).filter(Schema.type != 'database').delete()
                         session.query(KeyValueIndex).delete()
                         session.query(ExtensionIndex).delete()
                         session.query(SearchObjectIndex).delete()
@@ -810,7 +808,6 @@ class ObjectIndex(Plugin):
 
     @Command(__help__=N_('Start index synchronizing from an optional root-DN'))
     def syncIndex(self, base=None):
-        global last_uuid
         State.system_state = "indexing"
         # Don't index if someone else is already doing it
         if GlobalLock.exists("scan_index"):
@@ -875,7 +872,7 @@ class ObjectIndex(Plugin):
                 while not result.ready():
                     now = time.time()
                     current = total-result._number_left
-                    self.notify_frontends(N_("Processing object %s/%s [UUID=%s]" % (current, total, last_uuid)), round(100/total*current), step=2)
+                    self.notify_frontends(N_("Processing object %s/%s" % (current, total)), round(100/total*current), step=2)
                     self.last_notification = now
                     time.sleep(self.notify_every)
 
@@ -1626,7 +1623,6 @@ class ObjectIndex(Plugin):
 
 # needs to be top level to be picklable
 def process_objects(o):
-    global last_uuid
     res = None
     index = PluginRegistry.getInstance("ObjectIndex")
     with make_session() as inner_session:
