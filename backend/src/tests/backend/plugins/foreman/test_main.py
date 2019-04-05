@@ -529,7 +529,7 @@ class ForemanHookTestCase(RemoteTestCase):
             foreman.serve()
             foreman.remove_type("ForemanHost", self._host_cn)
         with make_session() as session:
-            session.query(Schema).filter(Schema.type.endswith('|Foreman')).delete()
+            session.query(Schema).filter(Schema.type.endswith('|Foreman')).delete(synchronize_session='fetch')
             session.commit()
 
     def get_app(self):
