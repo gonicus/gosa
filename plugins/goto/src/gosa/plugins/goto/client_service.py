@@ -668,7 +668,7 @@ class ClientService(Plugin):
         index = PluginRegistry.getInstance("ObjectIndex")
         res = index.search({"_type": "User", "uid": user_name}, {"dn": 1})
         for u in res:
-            user = ObjectProxy(u["dn"], from_db_only=True)
+            user = ObjectProxy(u["dn"])
             if not user.is_extended_by("GosaAccount"):
                 user.extend("GosaAccount")
             user.gotoLastSystemLogin = datetime.datetime.now()
