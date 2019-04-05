@@ -6,7 +6,7 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
-
+import json
 import re
 from gosa.backend.objects.filter import ElementFilter
 import datetime
@@ -313,7 +313,10 @@ class StringToJson(ElementFilter):
 
     def process(self, obj, key, valDict):
         if type(valDict[key]['value'] is not None):
-            valDict[key]['value'] = list(map(lambda x: loads(x), valDict[key]['value']))
+            try:
+                valDict[key]['value'] = list(map(lambda x: loads(x), valDict[key]['value']))
+            except json.decoder.JSONDecodeError as e:
+                self.log.error("invalid JSON value property %s [DN=%s]: %s" % (key, obj.dn if obj is not None else '', valDict[key]['value']))
         return key, valDict
 
 
