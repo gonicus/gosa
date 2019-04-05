@@ -1658,7 +1658,6 @@ def process_objects(o):
                 res = "updated"
 
         uuid = obj.uuid
-        last_uuid = uuid
         del obj
         return res, uuid, ObjectIndex.to_be_updated
 
