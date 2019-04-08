@@ -165,7 +165,7 @@ class UnicodeStringAttribute(AttributeType):
         return value1 == value2
 
     def _convert_to_string(self, value):
-        return list(map(lambda x: x.decode('utf-8'), value))
+        return list(map(lambda x: x.decode('utf-8') if type(x) == bytes else x, value))
 
     def _convert_to_unicodestring(self, value):
         return list(map(lambda x: x.decode('utf-8') if type(x) == bytes else x, value))
