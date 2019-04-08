@@ -255,6 +255,7 @@ class WebhookReceiver(HSTSRequestHandler):
     def initialize(self):
         self.sender = self.request.headers.get('HTTP_X_HUB_SENDER')
         self.signature = self.request.headers.get('HTTP_X_HUB_SIGNATURE')
+        self.log = logging.getLogger(__name__)
 
     # disable xsrf feature
     def check_xsrf_cookie(self):
@@ -283,7 +284,11 @@ class WebhookReceiver(HSTSRequestHandler):
             # usually this code is unreachable because if there is no registered handler, there is no token
             raise HTTPError(401)
 
-        handler.handle_request(self)
+        try:
+            handler.handle_request(self)
+        except Exception as e:
+            self.log.error(e)
+            raise e
 
     def _verify_signature(self, payload_body, token):
         if self.signature is None:
