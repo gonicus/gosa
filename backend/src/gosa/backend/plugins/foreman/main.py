@@ -430,7 +430,7 @@ class Foreman(Plugin):
             if update_data is not None:
                 object.apply_update(update_data)
             self.log.debug(">>> commiting '%s'" % object_type)
-            object.commit(skip_backend_writes=['foreman'])
+            object.commit(skip_backend_writes=['Foreman'])
 
     def remove_type(self, object_type, oid):
         ForemanBackend.modifier = "foreman"
