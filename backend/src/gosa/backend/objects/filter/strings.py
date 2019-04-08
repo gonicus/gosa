@@ -7,6 +7,7 @@
 #
 # See the LICENSE file in the project's top-level directory for details.
 import json
+import logging
 import re
 from gosa.backend.objects.filter import ElementFilter
 import datetime
@@ -310,6 +311,7 @@ class StringToJson(ElementFilter):
 
     def __init__(self, obj):
         super(StringToJson, self).__init__(obj)
+        self.log = logging.getLogger(__name__)
 
     def process(self, obj, key, valDict):
         if type(valDict[key]['value'] is not None):
