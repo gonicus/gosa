@@ -963,6 +963,8 @@ class ForemanHookReceiver(object):
             return
         data = loads(request_handler.request.body)
         try:
+            # respond before processing to avoid blocking
+            request_handler.finish()
             self._handle_data(data)
         except Exception as e:
             self.log.error("Error during webhook processing: %s" % str(e))

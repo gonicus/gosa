@@ -1038,6 +1038,7 @@ class ObjectFactory(object):
                     'status': STATUS_OK,
                     'depends_on': depends_on,
                     'type': syntax,
+                    'real_backend_type': backend_syntax,
                     'backend_type': backend_syntax,
                     'validator': validator,
                     'out_filter': out_f,

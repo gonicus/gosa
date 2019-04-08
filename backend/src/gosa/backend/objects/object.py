@@ -376,9 +376,9 @@ class Object(object):
                     if self._from_db_only is True:
                         # just load everything from database
                         index = PluginRegistry.getInstance("ObjectIndex")
-                        res = index.search({"uuid": self.uuid}, {k: 1 for k in info.keys()})
+                        res = index.search({"uuid": self.uuid}, {"IN_VALUE-%s" % k: 1 for k in info.keys()})
 
-                        attrs = {x: y for x, y in res[0].items() if x in info}
+                        attrs = {x[9:]: y for x, y in res[0].items() if x[0:9] == "IN_VALUE-" and x[9:] in info}
                     else:
                         attrs = be.load(uuid, info, be_attrs, **kwargs)
 

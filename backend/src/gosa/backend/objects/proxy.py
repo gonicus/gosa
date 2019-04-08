@@ -1316,7 +1316,7 @@ class ObjectProxy(object):
             event_object = objectify.fromstring(etree.tostring(event, pretty_print=True).decode('utf-8'))
             SseHandler.notify(event_object, channel="user.%s" % self.__current_user)
 
-    def asJSON(self, only_indexed=False):
+    def asJSON(self, only_indexed=False, use_in_value=False):
         """
         Returns JSON representations for the base-object and all its extensions.
         """
@@ -1353,6 +1353,12 @@ class ObjectProxy(object):
             prop_value = props[propname]['value']
             if props[propname]['type'] != "Binary":
                 res[propname] = atypes[props[propname]['type']].convert_to("UnicodeString", prop_value)
+                if use_in_value is True:
+                    try:
+                        res['IN_VALUE-%s' % propname] = atypes[props[propname]['real_backend_type']].convert_to("UnicodeString", props[propname]['in_value'])
+                    except AttributeError as e:
+                        self.log.error("Error converting in-value '%s' of property '%s' [Type: %s, Backend-Type: %s] to string: %s" %
+                                       (props[propname]['in_value'], propname, props[propname]['type'], props[propname]['real_backend_type'], str(e)))
 
         return res
 

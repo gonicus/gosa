@@ -1106,79 +1106,81 @@ class ObjectIndex(Plugin):
                 self.__session_save(data, session)
 
     def __session_save(self, data, session):
-
-        # Assemble object index object
-        oi = ObjectInfoIndex(
-            uuid=data["_uuid"],
-            dn=data["dn"],
-            _type=data["_type"],
-            _parent_dn=data["_parent_dn"],
-            _adjusted_parent_dn=data["_adjusted_parent_dn"],
-            _invisible=data["_invisible"],
-            _master_backend=data["_master_backend"]
-        )
-
-        if '_last_changed' in data:
-            oi._last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
-
-        session.add(oi)
-
-        # Assemble extension index objects
-        for ext in data["_extensions"]:
-            ei = ExtensionIndex(uuid=data["_uuid"], extension=ext)
-            session.add(ei)
-
-        # Assemble key value index objects
-        for key, value in data.items():
-
-            # Skip meta information and DN
-            if key.startswith("_") or key == "dn":
-                continue
-
-            if isinstance(value, list):
-                for v in value:
-                    kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=v)
-                    session.add(kvi)
-            else:
-                kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=value)
-                session.add(kvi)
-
-        # assemble search object
-        if data['_type'] in self.__search_aid['mapping']:
-            aid = self.__search_aid['mapping'][data['_type']]
-            attrs = self.__search_aid['attrs'][data['_type']] if data['_type'] in self.__search_aid['attrs'] else []
-            types = [data['_type']]
-            types.extend(data["_extensions"])
-            # append aliases to search words
-            for type in types[:]:
-                if type in self.__search_aid['aliases']:
-                    types.extend(self.__search_aid['aliases'][type])
-
-            for ext in data["_extensions"]:
-                if ext in self.__search_aid['mapping']:
-                    aid.update(self.__search_aid['mapping'][ext])
-                if ext in self.__search_aid['attrs']:
-                    attrs.extend(self.__search_aid['attrs'][ext])
-
-            attrs = list(set(attrs))
-            search_words = [", ".join(data[x]) for x in attrs if x in data and data[x] is not None]
-            so = SearchObjectIndex(
-                so_uuid=data["_uuid"],
-                reverse_parent_dn=','.join([d for d in ldap.dn.explode_dn(data["_parent_dn"], flags=ldap.DN_FORMAT_LDAPV3)[::-1]]),
-                title=self.__build_value(aid["title"], data),
-                description=self.__build_value(aid["description"], data),
-                search=" ".join(search_words),
-                types=" ".join(list(set(types)))
+        try:
+            # Assemble object index object
+            oi = ObjectInfoIndex(
+                uuid=data["_uuid"],
+                dn=data["dn"],
+                _type=data["_type"],
+                _parent_dn=data["_parent_dn"],
+                _adjusted_parent_dn=data["_adjusted_parent_dn"],
+                _invisible=data["_invisible"],
+                _master_backend=data["_master_backend"]
             )
-            session.add(so)
 
-        session.commit()
+            if '_last_changed' in data:
+                oi._last_modified = datetime.datetime.fromtimestamp(data["_last_changed"])
 
-        # update word index on change (if indexing is not running currently)
-        if not GlobalLock.exists("scan_index"):
-            self.update_words(session=session)
+            session.add(oi)
 
-        self.unmark_as_dirty(data["_uuid"])
+            # Assemble extension index objects
+            for ext in data["_extensions"]:
+                ei = ExtensionIndex(uuid=data["_uuid"], extension=ext)
+                session.add(ei)
+
+            # Assemble key value index objects
+            for key, value in data.items():
+
+                # Skip meta information and DN
+                if key.startswith("_") or key == "dn":
+                    continue
+
+                if isinstance(value, list):
+                    for v in value:
+                        kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=v)
+                        session.add(kvi)
+                else:
+                    kvi = KeyValueIndex(uuid=data["_uuid"], key=key, value=value)
+                    session.add(kvi)
+
+            # assemble search object
+            if data['_type'] in self.__search_aid['mapping']:
+                aid = self.__search_aid['mapping'][data['_type']]
+                attrs = self.__search_aid['attrs'][data['_type']] if data['_type'] in self.__search_aid['attrs'] else []
+                types = [data['_type']]
+                types.extend(data["_extensions"])
+                # append aliases to search words
+                for type in types[:]:
+                    if type in self.__search_aid['aliases']:
+                        types.extend(self.__search_aid['aliases'][type])
+
+                for ext in data["_extensions"]:
+                    if ext in self.__search_aid['mapping']:
+                        aid.update(self.__search_aid['mapping'][ext])
+                    if ext in self.__search_aid['attrs']:
+                        attrs.extend(self.__search_aid['attrs'][ext])
+
+                attrs = list(set(attrs))
+                search_words = [", ".join(data[x]) for x in attrs if x in data and data[x] is not None]
+                so = SearchObjectIndex(
+                    so_uuid=data["_uuid"],
+                    reverse_parent_dn=','.join([d for d in ldap.dn.explode_dn(data["_parent_dn"], flags=ldap.DN_FORMAT_LDAPV3)[::-1]]),
+                    title=self.__build_value(aid["title"], data),
+                    description=self.__build_value(aid["description"], data),
+                    search=" ".join(search_words),
+                    types=" ".join(list(set(types)))
+                )
+                session.add(so)
+
+            session.commit()
+
+            # update word index on change (if indexing is not running currently)
+            if not GlobalLock.exists("scan_index"):
+                self.update_words(session=session)
+
+            self.unmark_as_dirty(data["_uuid"])
+        except Exception as e:
+            self.log.error('Error during save: %s' % str(e))
 
     def __build_value(self, v, info):
         """
@@ -1260,7 +1262,7 @@ class ObjectIndex(Plugin):
     def __update(self, obj, session):
         # Gather information
 
-        current = obj.asJSON(True)
+        current = obj.asJSON(True, use_in_value=True)
         old_dn = session.query(ObjectInfoIndex.dn).filter(ObjectInfoIndex.uuid == obj.uuid).one_or_none()
         if not old_dn:
             raise IndexException(C.make_error('OBJECT_NOT_FOUND', "base", id=obj.uuid))
