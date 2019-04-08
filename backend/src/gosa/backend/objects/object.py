@@ -383,7 +383,7 @@ class Object(object):
                         attrs = res[0]
                         for key in attrs.keys():
                             # all values are stored as unicode string in DB
-                            if key in info and info[key] != "UnicodeString":
+                            if key in info and info[key] not in ["UnicodeString", "AnyType"]:
                                 attrs[key] = unicodeStringType.convert_to(info[key], attrs[key])
                     else:
                         attrs = be.load(uuid, info, be_attrs, **kwargs)
