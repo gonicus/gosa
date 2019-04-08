@@ -1093,7 +1093,7 @@ class ObjectIndex(Plugin):
             raise IndexException(C.make_error('OBJECT_EXISTS', "base", uuid=obj.uuid))
 
         with self.lock:
-            self.__save(obj.asJSON(True), session=session)
+            self.__save(obj.asJSON(True, use_in_value=True), session=session)
 
     def __save(self, data, session=None):
         if self.env.mode == "proxy":
