@@ -649,6 +649,8 @@ class RPCMethods(Plugin):
                 if ranked is True:
                     item = tuple[0]
                     rank = tuple[1]
+                    # make sure that the primary rank is higher that the secondaries
+                    rank += 1
                 else:
                     item = tuple
                     rank = 1
