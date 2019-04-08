@@ -25,6 +25,9 @@
       <ForeignAttribute>
           <Name>macAddress</Name>
       </ForeignAttribute>
+      <ForeignAttribute>
+        <Name>description</Name>
+      </ForeignAttribute>
       <Attribute>
         <Name>status</Name>
         <Description>The foreman - current device status</Description>
