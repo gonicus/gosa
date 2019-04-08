@@ -343,8 +343,6 @@ class Object(object):
         else:
             backends = self._propsByBackend.keys()
 
-        from gosa.backend.objects.factory import ObjectFactory
-        unicodeStringType = ObjectFactory.getInstance().getAttributeTypes()["UnicodeString"]
         for backend in backends:
 
             try:
@@ -380,11 +378,7 @@ class Object(object):
                         index = PluginRegistry.getInstance("ObjectIndex")
                         res = index.search({"uuid": self.uuid}, {k: 1 for k in info.keys()})
 
-                        attrs = res[0]
-                        for key in attrs.keys():
-                            # all values are stored as unicode string in DB
-                            if key in info and info[key] not in ["UnicodeString", "AnyType"]:
-                                attrs[key] = unicodeStringType.convert_to(info[key], attrs[key])
+                        attrs = {x: y for x, y in res[0].items() if x in info}
                     else:
                         attrs = be.load(uuid, info, be_attrs, **kwargs)
 
