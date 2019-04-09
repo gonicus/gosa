@@ -177,6 +177,7 @@ qx.Theme.define("gosa.theme.Appearance", {
       style: function() {
         return {
           width: 64,
+          height: 64,
           scale: true,
           marginRight: 5,
           textColor: "icon-color"
