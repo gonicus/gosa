@@ -360,19 +360,6 @@ class Object(object):
                     uuid = self.uuid
                     be_attrs = None
                     kwargs = {}
-                    if backend in self._backendAttrs:
-                        be_attrs = self._backendAttrs[backend]
-
-                        if "_uuidAttribute" in be_attrs:
-                            value = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
-                            if value is None:
-                                raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend,
-                                                                   name=be_attrs['_uuidAttribute']))
-                            else:
-                                uuid = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
-
-                        kwargs = self.get_backend_kwargs(be_attrs)
-
                     if self._from_db_only is True:
                         # just load everything from database
                         index = PluginRegistry.getInstance("ObjectIndex")
@@ -380,6 +367,18 @@ class Object(object):
 
                         attrs = {x[9:]: y for x, y in res[0].items() if x[0:9] == "IN_VALUE-" and x[9:] in info}
                     else:
+                        if backend in self._backendAttrs:
+                            be_attrs = self._backendAttrs[backend]
+
+                            if "_uuidAttribute" in be_attrs:
+                                value = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
+                                if value is None:
+                                    raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=backend,
+                                                                       name=be_attrs['_uuidAttribute']))
+                                else:
+                                    uuid = self._getattr_(be_attrs['_uuidAttribute'], "in_value")
+
+                            kwargs = self.get_backend_kwargs(be_attrs)
                         attrs = be.load(uuid, info, be_attrs, **kwargs)
 
             except ValueError as e:
