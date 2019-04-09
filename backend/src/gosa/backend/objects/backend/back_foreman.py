@@ -335,12 +335,16 @@ class ForemanClient(object):
             "verify": self.env.config.get("foreman.verify", "true") == "true",
             "data": data,
             "cookies": self.__cookies,
-            "timeout": 60
+            "timeout": 30
         }
-        if self.__cookies is None:
-            response = self.__authenticate(method, url, kwargs)
-        else:
-            response = method(url, **kwargs)
+        try:
+            if self.__cookies is None:
+                response = self.__authenticate(method, url, kwargs)
+            else:
+                response = method(url, **kwargs)
+        except Exception as e:
+            self.log.error("Error during foreman API request: %s" % str(e))
+            raise e
 
         if response.status_code == 401 and self.__cookies is not None:
             # try to re-authenticate session might be timed out

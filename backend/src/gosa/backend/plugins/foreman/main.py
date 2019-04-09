@@ -976,9 +976,11 @@ class ForemanHookReceiver(object):
         with make_session() as session:
             hash_entry = session.query(Schema).get('%s|Foreman' % uuid)
             if hash_entry is None:
+                self.log.debug("no hash entry for UUID: %s" % uuid)
                 changed = True
             else:
-                changed = hash_entry == hash
+                self.log.debug("hash entry for UUID %s: %s == %s" % (uuid, hash_entry.hash, hash))
+                changed = hash_entry.hash == hash
 
         if save_if_changed is True and changed is True:
             self._save_hash(uuid, hash)
@@ -1050,7 +1052,7 @@ class ForemanHookReceiver(object):
         object_type = object_types[0] if len(object_types) else None
 
         backend_attributes = factory.getObjectBackendProperties(object_type) if object_type is not None else None
-        self.log.debug("Hookevent: '%s' for '%s' (%s)" % (data['event'], data['object'], object_type))
+        self.log.debug("Hookevent: '%s' for '%s' (%s [%s])" % (data['event'], data['object'], object_type, foreman_type))
 
         uuid_attribute = None
         if "Foreman" in backend_attributes:
@@ -1069,6 +1071,7 @@ class ForemanHookReceiver(object):
             host = None
             update = {'__extensions__': []}
             filtered_payload_hash = self.__to_hash(filtered_payload)
+            self.log.debug("filtered_payload: %s \n>>> Hash: %s" % (filtered_payload, filtered_payload_hash))
             if foreman_type == "host":
 
                 id = payload_data["id"] if "id" in payload_data else None
@@ -1092,8 +1095,7 @@ class ForemanHookReceiver(object):
                         res = index.search({
                             "_type": "Device",
                             "extension": ["ForemanHost", "ieee802Device"],
-                            "macAddress": payload_data["mac"],
-                            "status": "discovered"
+                            "macAddress": payload_data["mac"]
                         }, {"dn": 1})
 
                         if len(res):

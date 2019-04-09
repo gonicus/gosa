@@ -920,7 +920,7 @@ class RPCMethods(Plugin):
             if attr is not None and self.__has_access_to(user, entry.dn, entry._type, attr):
                 if hasattr(ObjectInfoIndex, attr):
                     ne[attr] = getattr(entry, attr)
-                elif hasattr(SearchObjectIndex, attr):
+                elif hasattr(SearchObjectIndex, attr) and len(entry.search_object) > 0:
                     ne[attr] = getattr(entry.search_object[0], attr)
                 else:
                     get_attrs.append(attr)

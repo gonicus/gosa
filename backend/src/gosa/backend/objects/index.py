@@ -359,7 +359,8 @@ class ObjectIndex(Plugin):
                         session.query(SearchObjectIndex).delete()
                         session.query(ObjectInfoIndex).delete()
                         session.query(OpenObject).delete()  # delete references to backends
-                        session.query(RegisteredBackend).delete()
+                        # delete the old active master (not the proxies)
+                        session.query(RegisteredBackend).filter(RegisteredBackend.type == 'active_master').delete()
                         self.log.info('object definitions changed, dropped old object index')
                         # enable indexing
                         self.env.backend_index = True
