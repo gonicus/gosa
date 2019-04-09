@@ -366,6 +366,8 @@ class ForemanClientTestCase(TestCase):
         with pytest.raises(ForemanBackendException):
             client.get("unknown")
 
+        m_get.reset_mock()
+
         m_get.return_value = MockResponse('{\
             "total": 3,\
             "subtotal": 3,\
@@ -408,6 +410,14 @@ class ForemanClientTestCase(TestCase):
         assert m_get.called_with("http://localhost/api/domains")
         assert res['total'] == 3
         assert len(res['results']) == res['total']
+        assert m_get.call_count == 1
+
+        # test is second request is answered from cache
+        res = client.get("domains")
+        assert m_get.called_with("http://localhost/api/domains")
+        assert res['total'] == 3
+        assert len(res['results']) == res['total']
+        assert m_get.call_count == 1
 
         m_get.return_value = MockResponse('{\
             "id": 23,\
