@@ -359,11 +359,12 @@ class ObjectIndex(Plugin):
                         session.query(SearchObjectIndex).delete()
                         session.query(ObjectInfoIndex).delete()
                         session.query(OpenObject).delete()  # delete references to backends
-                        # delete the old active master (not the proxies)
-                        session.query(RegisteredBackend).filter(RegisteredBackend.type == 'active_master').delete()
                         self.log.info('object definitions changed, dropped old object index')
                         # enable indexing
                         self.env.backend_index = True
+
+                    # delete the old active master (not the proxies)
+                    session.query(RegisteredBackend).filter(RegisteredBackend.type == 'active_master').delete()
 
                 # Create the initial schema information if required
                 if not session.query(Schema).filter(Schema.type == 'objects').one_or_none():
@@ -433,7 +434,7 @@ class ObjectIndex(Plugin):
                 with make_session() as session:
 
                     if db_recreated is False:
-                        tables_to_recreate = [UserSession.__table__, OpenObject.__table__, RegisteredBackend.__table__]
+                        tables_to_recreate = [UserSession.__table__, OpenObject.__table__]
 
                         for table in tables_to_recreate:
                             table.drop(engine)
