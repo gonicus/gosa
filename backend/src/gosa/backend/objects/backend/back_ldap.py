@@ -566,10 +566,10 @@ class LDAP(ObjectBackend):
         return value == "TRUE"
 
     def _convert_from_string(self, value):
-        return value.decode('ascii')
+        return value.decode('ascii') if isinstance(value, bytes) else value
 
     def _convert_from_unicodestring(self, value):
-        return value.decode()
+        return value.decode() if isinstance(value, bytes) else value
 
     def _convert_from_integer(self, value):
         return int(value)
