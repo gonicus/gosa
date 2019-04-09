@@ -6,8 +6,10 @@
 #  (C) 2016 GONICUS GmbH, Germany, http://www.gonicus.de
 #
 # See the LICENSE file in the project's top-level directory for details.
+import datetime
 import json
-from lxml import objectify, etree
+import threading
+
 from threading import Thread
 import logging
 import requests
@@ -91,7 +93,7 @@ class Foreman(ObjectBackend):
         self.log.debug("load: %s, %s, %s, %s" % (uuid, info, back_attrs, data))
         if data is None:
             try:
-                data = self.client.get(self.get_foreman_type(needed, back_attrs), id=uuid)
+                data = self.client.get(self.get_foreman_type(needed, back_attrs), object_id=uuid)
             except ForemanBackendException as e:
                 # something when wrong
                 self.log.error("Error requesting foreman backend: %s" % e.message)
@@ -144,8 +146,8 @@ class Foreman(ObjectBackend):
         """ Called when a base object is extended with a foreman object (e.g. device->foremanHost)"""
         self.log.debug("extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
         if Foreman.modifier != "foreman":
-            type = self.get_foreman_type(needed, params)
-            payload = self.__collect_data(data, params, type=type[:-1])
+            object_type = self.get_foreman_type(needed, params)
+            payload = self.__collect_data(data, params, object_type=object_type[:-1])
 
             # finally send the update to foreman
             self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
@@ -182,11 +184,11 @@ class Foreman(ObjectBackend):
     def update(self, uuid, data, params, dn=None, needed=None, user=None):
         self.log.debug("update: '%s', '%s', '%s'" % (uuid, data, params))
         if Foreman.modifier != "foreman":
-            type = self.get_foreman_type(needed, params)
-            payload = self.__collect_data(data, params, type=type[:-1])
+            object_type = self.get_foreman_type(needed, params)
+            payload = self.__collect_data(data, params, object_type=object_type[:-1])
             restart = False
             # check special reboot attribute
-            if type == "hosts" and "reboot" in payload["host"]:
+            if object_type == "hosts" and "reboot" in payload["host"]:
                 if "build" in payload["host"] and payload["host"]["build"] is True and payload["host"]["reboot"] is True:
                     # restart host after commit
                     restart = True
@@ -198,7 +200,7 @@ class Foreman(ObjectBackend):
 
             def runner():
                 try:
-                    result = self.client.put(type, uuid, data=payload)
+                    result = self.client.put(object_type, uuid, data=payload)
                     self.log.debug("Response: %s" % result)
                     if restart is True:
                         self.log.info("Restarting host to trigger the build")
@@ -238,27 +240,68 @@ class Foreman(ObjectBackend):
 
         return result
 
-    def __collect_data(self, data, params, type=None):
+    def __collect_data(self, data, params, object_type=None):
         # collect data
-        if type is None:
-            type = params["type"][:-1]
+        if object_type is None:
+            object_type = params["type"][:-1]
         payload = {
-            type: {}
+            object_type: {}
         }
         for name, settings in data.items():
             if len(settings["value"]):
-                payload[type][name] = settings["value"][0]
+                payload[object_type][name] = settings["value"][0]
             else:
                 # unset value
-                payload[type][name] = None
+                payload[object_type][name] = None
 
         return payload
+
+
+class ForemanClientCache(object):
+    __cache = {}
+    lock = threading.Lock()
+
+    @classmethod
+    def get_cache(cls, method_name, object_type, object_id=None):
+        if method_name == "get":
+            cache_id = object_type
+            if object_id is not None:
+                cache_id += "/%s" % object_id
+            if cache_id in cls.__cache:
+                if cls.__cache[cache_id]["expires"] <= datetime.datetime.now():
+                    return cls.__cache[cache_id]["data"]
+                else:
+                    with cls.lock:
+                        del cls.__cache[cache_id]
+        return None
+
+    @classmethod
+    def add_to_cache(cls, method_name, object_type, response, object_id=None):
+        if method_name == "get":
+            cache_id = object_type
+            if object_id is not None:
+                cache_id += "/%s" % object_id
+            with cls.lock:
+                cls.__cache[cache_id] = {
+                    "expires": datetime.datetime.now() + datetime.timedelta(hours=1),
+                    "data": response
+                }
+
+    @classmethod
+    def delete_cache(cls, object_type, object_id=None):
+        cache_id = object_type
+        if object_id is not None:
+            cache_id += "/%s" % object_id
+        if cache_id in cls.__cache:
+            with cls.lock:
+                del cls.__cache[cache_id]
 
 
 class ForemanClient(object):
     """Client for the Foreman REST-API v2"""
     headers = {'Accept': 'version=2,application/json', 'Content-type': 'application/json'}
     __cookies = None
+    __cache = {}
 
     def __init__(self, url=None):
         self.env = Environment.getInstance()
@@ -271,13 +314,18 @@ class ForemanClient(object):
         self.__cookies = response.cookies
         return response
 
-    def __request(self, method_name, type, id=None, data=None):
+    def __request(self, method_name, object_type, object_id=None, data=None):
         if self.foreman_host is None:
             return {}
 
-        url = "%s/%s" % (self.foreman_host, type)
-        if id is not None:
-            url += "/%s" % id
+        cached = ForemanClientCache.get_cache(method_name, object_type, object_id=object_id)
+        if cached is not None:
+            self.log.debug("using cached response for %s request of %s" % (method_name, object_type))
+            return cached
+
+        url = "%s/%s" % (self.foreman_host, object_type)
+        if object_id is not None:
+            url += "/%s" % object_id
 
         method = getattr(requests, method_name)
         data = dumps(data) if data is not None else None
@@ -304,6 +352,8 @@ class ForemanClient(object):
             # check for error
             if "error" in data:
                 raise ForemanBackendException(response, method=method_name)
+            else:
+                ForemanClientCache.add_to_cache(method_name, object_type, data, object_id=object_id)
             return data
         else:
             self.log.error("%s request with %s to %s failed: %s" % (method_name, data, url, str(response.content)))
@@ -317,17 +367,17 @@ class ForemanClient(object):
         except:
             return False
 
-    def get(self, type, id=None):
-        return self.__request("get", type, id=id)
+    def get(self, object_type, object_id=None):
+        return self.__request("get", object_type, object_id=object_id)
 
-    def delete(self, type, id):
-        return self.__request("delete", type, id=id)
+    def delete(self, object_type, object_id):
+        return self.__request("delete", object_type, object_id=object_id)
 
-    def put(self, type, id, data):
-        return self.__request("put", type, id=id, data=data)
+    def put(self, object_type, object_id, data):
+        return self.__request("put", object_type, object_id=object_id, data=data)
 
-    def post(self, type, id=None, data=None):
-        return self.__request("post", type, id=id, data=data)
+    def post(self, object_type, object_id=None, data=None):
+        return self.__request("post", object_type, object_id=object_id, data=data)
 
     def set_common_parameter(self, name, value, host=None, replace=True):
         foreman_type = "common_parameter" if host is None else "parameter"
@@ -339,7 +389,7 @@ class ForemanClient(object):
         }
         path = "common_parameters" if host is None else "hosts/%s/parameters" % host
         try:
-            response = self.get(path, id=name)
+            response = self.get(path, object_id=name)
         except ForemanBackendException as e:
             if e.response.status_code == 404:
                 # create parameter
@@ -347,7 +397,7 @@ class ForemanClient(object):
         else:
             if 'value' not in response or (response["value"] != payload[foreman_type]["value"] and replace is False):
                 # update parameter
-                self.put(path, id=name, data=payload)
+                self.put(path, object_id=name, data=payload)
 
     @classmethod
     def error_notify_user(cls, ex, user=None):

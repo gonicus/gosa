@@ -40,7 +40,7 @@ from gosa.common.utils import N_, generate_random_key, cache_return
 from gosa.common.components import PluginRegistry
 from gosa.common.gjson import loads, dumps
 from base64 import b64encode as encode
-from gosa.backend.objects.backend.back_foreman import Foreman as ForemanBackend, ForemanClient, ForemanBackendException
+from gosa.backend.objects.backend.back_foreman import Foreman as ForemanBackend, ForemanClient, ForemanBackendException, ForemanClientCache
 
 C.register_codes(dict(
     FOREMAN_UNKNOWN_TYPE=N_("Unknown object type '%(type)s'"),
@@ -215,7 +215,7 @@ class Foreman(Plugin):
 
         new_data = self.client.get(foreman_type)
         found_ids = []
-        ForemanBackend.modifier = "foreman"
+        ForemanBackend.set_modifier("foreman")
 
         uuid_attribute = backend_attributes["Foreman"]["_uuidSourceAttribute"] \
             if '_uuidSourceAttribute' in backend_attributes["Foreman"] else backend_attributes["Foreman"]["_uuidAttribute"]
@@ -256,7 +256,7 @@ class Foreman(Plugin):
             self.log.debug("removing %s '%s'" % (base_type, foreman_object.dn))
             foreman_object.remove()
 
-        ForemanBackend.modifier = None
+        ForemanBackend.set_modifier(None)
 
     def get_object(self, object_type, oid, create=True, data=None, read_only=False, from_db_only=False):
         backend_attributes = self.factory.getObjectBackendProperties(object_type)
@@ -434,7 +434,7 @@ class Foreman(Plugin):
             object.commit(skip_backend_writes=['Foreman'])
 
     def remove_type(self, object_type, oid):
-        ForemanBackend.modifier = "foreman"
+        ForemanBackend.set_modifier("foreman")
         factory = ObjectFactory.getInstance()
 
         foreman_object, delay_update = self.get_object(object_type, oid, create=False)
@@ -455,7 +455,7 @@ class Foreman(Plugin):
             #     foreman_object.retract(object_type)
             #     foreman_object.commit()
 
-        ForemanBackend.modifier = None
+        ForemanBackend.set_modifier(None)
 
     def sync_release_names(self):
         """
@@ -748,7 +748,7 @@ class Foreman(Plugin):
             else:
                 base = self.type_bases["ForemanHost"]
 
-        ForemanBackend.modifier = "foreman"
+        ForemanBackend.set_modifier("foreman")
 
         device, delay_update = self.get_object("ForemanHost", hostname, create=False, from_db_only=True)
         update = {}
@@ -805,7 +805,7 @@ class Foreman(Plugin):
             return "%s|%s" % (key, device_uuid)
 
         finally:
-            ForemanBackend.modifier = None
+            ForemanBackend.set_modifier(None)
 
     def mark_for_parameter_setting(self, hostname, status):
         """ mark this host to be parametrized later """
@@ -906,7 +906,7 @@ class ForemanRealmReceiver(object):
             with open(self.env.config.get("foreman.event-log"), "a") as f:
                 f.write("%s,\n" % dumps(data, indent=4, sort_keys=True))
 
-        ForemanBackend.modifier = "foreman"
+        ForemanBackend.set_modifier("foreman")
         self.log.debug("Hostevent: '%s' for '%s'" % (data['action'], data['hostname']))
         if data['action'] == "create":
             # new client -> join it
@@ -928,7 +928,7 @@ class ForemanRealmReceiver(object):
             # this is handled by the after_destroy hook, which is triggered before the host delete
             pass
 
-        ForemanBackend.modifier = None
+        ForemanBackend.set_modifier(None)
 
 
 class ForemanHookReceiver(object):
@@ -1060,7 +1060,7 @@ class ForemanHookReceiver(object):
         backend_props = [k for k in factory.getObjectProperties(object_type).keys() if "Foreman" in factory.getObjectProperties(object_type)[k]["backend"]]
         filtered_payload = {k: v for (k, v) in payload_data.items() if k in backend_props}
 
-        ForemanBackend.modifier = "foreman"
+        ForemanBackend.set_modifier("foreman")
         backend_data = {}
         delay_update = False
         object_uuid = None
@@ -1143,6 +1143,9 @@ class ForemanHookReceiver(object):
                         self.log.debug("skipping update for %s: no change detected" % host.dn)
                         return
 
+            # clear foreman client cache for this value
+            ForemanClientCache.delete_cache(object_type, object_id=payload_data[uuid_attribute])
+
             foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], data=payload_data, create=host is None, from_db_only=True)
             if foreman_object and host:
                 if foreman_object.uuid != host.uuid:
@@ -1210,7 +1213,7 @@ class ForemanHookReceiver(object):
         else:
             self.log.info("unhandled hook event '%s' received for '%s'" % (data['event'], type))
 
-        ForemanBackend.modifier = None
+        ForemanBackend.set_modifier(None)
 
     def cleanup_event_skipper(self, event, id):
         if event in ForemanHookReceiver.skip_next_event and id in ForemanHookReceiver.skip_next_event[event]:
