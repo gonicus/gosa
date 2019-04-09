@@ -12,9 +12,13 @@ The object base class.
 """
 
 import copy
+import datetime
 
 import re
+import time
+
 from gosa.backend.objects.validator import Validator
+from gosa.common.components.jsonrpc_utils import Binary
 from lxml import objectify, etree
 
 import zope.event
@@ -365,7 +369,18 @@ class Object(object):
                         index = PluginRegistry.getInstance("ObjectIndex")
                         res = index.search({"uuid": self.uuid}, {"IN_VALUE-%s" % k: 1 for k in info.keys()})
 
-                        attrs = {x[9:]: y for x, y in res[0].items() if x[0:9] == "IN_VALUE-" and x[9:] in info}
+                        attrs = {}
+                        for key in info.keys():
+                            in_key = "IN_VALUE-%s" % key
+                            if in_key in res[0]:
+                                if hasattr(be, "_convert_from_%s" % info[key].lower()):
+                                    cnv = getattr(be, "_convert_from_%s" % info[key].lower())
+                                    lcnv = []
+                                    for lvalue in res[0][in_key]:
+                                        lcnv.append(cnv(lvalue))
+                                    attrs[key] = lcnv
+                                else:
+                                    attrs[key] = res[0][in_key]
                     else:
                         if backend in self._backendAttrs:
                             be_attrs = self._backendAttrs[backend]
@@ -405,6 +420,28 @@ class Object(object):
 
         # Convert the received type into the target type if not done already
         self._convert_types(keys=keys, keep=False if keys is not None else True)
+
+    def _convert_from_boolean(self, value):
+        return value == "TRUE"
+
+    def _convert_from_string(self, value):
+        return value.decode('ascii') if isinstance(value, bytes) else value
+
+    def _convert_from_unicodestring(self, value):
+        return value.decode() if isinstance(value, bytes) else value
+
+    def _convert_from_integer(self, value):
+        return int(value)
+
+    def _convert_from_timestamp(self, value):
+        return datetime.datetime.strptime(value.decode(), "%Y%m%d%H%M%SZ")
+
+    def _convert_from_date(self, value):
+        ts = time.mktime(time.strptime(value.decode(), "%Y%m%d%H%M%SZ"))
+        return datetime.date.fromtimestamp(ts)
+
+    def _convert_from_binary(self, value):
+        return Binary(value)
 
     def _process_in_filters(self, keys=None):
         if keys is None:
