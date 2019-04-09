@@ -323,6 +323,7 @@ class Foreman(Plugin):
                 from_db_only=from_db_only,
                 skip_value_population=True
             )
+            self.log.debug(">>> opened")
 
         return foreman_object, False
 
@@ -1142,7 +1143,7 @@ class ForemanHookReceiver(object):
                         self.log.debug("skipping update for %s: no change detected" % host.dn)
                         return
 
-            foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], create=host is None, from_db_only=True)
+            foreman_object, skip_this = foreman.get_object(object_type, payload_data[uuid_attribute], data=payload_data, create=host is None, from_db_only=True)
             if foreman_object and host:
                 if foreman_object.uuid != host.uuid:
                     self.log.debug("using known host instead of creating a new one")
