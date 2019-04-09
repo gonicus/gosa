@@ -268,7 +268,7 @@ class ForemanClientCache(object):
             if object_id is not None:
                 cache_id += "/%s" % object_id
             if cache_id in cls.__cache:
-                if cls.__cache[cache_id]["expires"] <= datetime.datetime.now():
+                if cls.__cache[cache_id]["expires"] > datetime.datetime.now():
                     return cls.__cache[cache_id]["data"]
                 else:
                     with cls.lock:
