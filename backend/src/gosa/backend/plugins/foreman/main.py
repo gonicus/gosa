@@ -980,7 +980,7 @@ class ForemanHookReceiver(object):
                 changed = True
             else:
                 self.log.debug("hash entry for UUID %s: %s == %s" % (uuid, hash_entry.hash, hash))
-                changed = hash_entry.hash == hash
+                changed = hash_entry.hash != hash
 
         if save_if_changed is True and changed is True:
             self._save_hash(uuid, hash)
