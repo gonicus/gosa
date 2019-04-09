@@ -370,17 +370,18 @@ class Object(object):
                         res = index.search({"uuid": self.uuid}, {"IN_VALUE-%s" % k: 1 for k in info.keys()})
 
                         attrs = {}
-                        for key in info.keys():
-                            in_key = "IN_VALUE-%s" % key
-                            if in_key in res[0]:
-                                if hasattr(be, "_convert_from_%s" % info[key].lower()):
-                                    cnv = getattr(be, "_convert_from_%s" % info[key].lower())
-                                    lcnv = []
-                                    for lvalue in res[0][in_key]:
-                                        lcnv.append(cnv(lvalue))
-                                    attrs[key] = lcnv
-                                else:
-                                    attrs[key] = res[0][in_key]
+                        if len(res) == 1:
+                            for key in info.keys():
+                                in_key = "IN_VALUE-%s" % key
+                                if in_key in res[0]:
+                                    if hasattr(be, "_convert_from_%s" % info[key].lower()):
+                                        cnv = getattr(be, "_convert_from_%s" % info[key].lower())
+                                        lcnv = []
+                                        for lvalue in res[0][in_key]:
+                                            lcnv.append(cnv(lvalue))
+                                        attrs[key] = lcnv
+                                    else:
+                                        attrs[key] = res[0][in_key]
                     else:
                         if backend in self._backendAttrs:
                             be_attrs = self._backendAttrs[backend]
