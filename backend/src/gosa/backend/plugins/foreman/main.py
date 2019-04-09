@@ -521,10 +521,10 @@ class Foreman(Plugin):
     def getForemanHostgroup(self, id, attributes=None):
         res = {}
         if self.client:
-            data = self.client.get("hostgroups", id=id)
+            data = self.client.get("hostgroups", object_id=id)
             parent_id = data["parent_id"]
             while parent_id is not None:
-                pdata = self.client.get("hostgroups", id=parent_id)
+                pdata = self.client.get("hostgroups", object_id=parent_id)
                 data.update({k:v for k,v in pdata.items() if v})
                 parent_id = pdata["parent_id"]
 
@@ -567,7 +567,7 @@ class Foreman(Plugin):
                     name = entry["name"]
                     parent_id = entry["parent_id"]
                     while parent_id is not None:
-                        pdata = self.client.get("hostgroups", id=parent_id)
+                        pdata = self.client.get("hostgroups", object_id=parent_id)
                         name = "%s/%s" % (pdata["name"], name)
                         parent_id = pdata["parent_id"]
                     res[entry["id"]] = {"value": name}
@@ -601,7 +601,7 @@ class Foreman(Plugin):
     @Command(__help__=N_("Get available foreman hostgroups."))
     def getForemanDiscoveredHostId(self, name):
         if self.client:
-            data = self.client.get("discovered_hosts", id=name)
+            data = self.client.get("discovered_hosts", object_id=name)
             return data["id"]
 
     @cache_return(timeout_secs=60)
@@ -714,7 +714,7 @@ class Foreman(Plugin):
     def getForemanSetting(self, setting_id):
         if self.client:
             try:
-                data = self.client.get("settings", id=setting_id)
+                data = self.client.get("settings", object_id=setting_id)
                 return data["value"]
             except ForemanBackendException as e:
                 self.log.error("Error requesting foreman setting %s: %s" % (setting_id, e.message))
