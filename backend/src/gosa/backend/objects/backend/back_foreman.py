@@ -62,15 +62,6 @@ C.register_codes(dict(
 
 
 class Foreman(ObjectBackend):
-    modifier = None
-
-    @classmethod
-    def set_modifier(cls, val):
-        cls.modifier = val
-
-    @classmethod
-    def get_modifier(cls):
-        return cls.modifier
 
     def __init__(self):
         # Initialize environment and logger
@@ -115,22 +106,19 @@ class Foreman(ObjectBackend):
 
     def remove(self, uuid, data, params, needed=None, user=None):
         self.log.debug("remove: %s, %s, %s" % (uuid, data, params))
-        if Foreman.modifier != "foreman":
 
-            def runner():
-                try:
-                    self.client.delete(self.get_foreman_type(needed, params), uuid)
-                except ForemanBackendException as ex:
-                    ForemanClient.error_notify_user(ex, user)
-                    raise ex
+        def runner():
+            try:
+                self.client.delete(self.get_foreman_type(needed, params), uuid)
+            except ForemanBackendException as ex:
+                ForemanClient.error_notify_user(ex, user)
+                raise ex
 
-            # some changes (e.g. creating a host) trigger requests from foreman to gosa
-            # so we need to run this request in a non blocking thread
-            thread = Thread(target=runner)
-            thread.start()
+        # some changes (e.g. creating a host) trigger requests from foreman to gosa
+        # so we need to run this request in a non blocking thread
+        thread = Thread(target=runner)
+        thread.start()
 
-        else:
-            self.log.info("skipping deletion request as the change is coming from the foreman backend")
         return True
 
     def retract(self, uuid, data, params, needed=None, user=None):
@@ -145,28 +133,26 @@ class Foreman(ObjectBackend):
     def extend(self, uuid, data, params, foreign_keys, dn=None, needed=None, user=None):
         """ Called when a base object is extended with a foreman object (e.g. device->foremanHost)"""
         self.log.debug("extend: %s, %s, %s, %s" % (uuid, data, params, foreign_keys))
-        if Foreman.modifier != "foreman":
-            object_type = self.get_foreman_type(needed, params)
-            payload = self.__collect_data(data, params, object_type=object_type[:-1])
 
-            # finally send the update to foreman
-            self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
+        object_type = self.get_foreman_type(needed, params)
+        payload = self.__collect_data(data, params, object_type=object_type[:-1])
 
-            def runner():
-                try:
-                    result = self.client.post(type, data=payload)
-                    self.log.debug("Response: %s" % result)
-                except ForemanBackendException as ex:
-                    ForemanClient.error_notify_user(ex, user)
-                    raise ex
+        # finally send the update to foreman
+        self.log.debug("creating '%s' with '%s' to foreman" % (params["type"], payload))
 
-            # some changes (e.g. creating a host) trigger requests from foreman to gosa
-            # so we need to run this request in a non blocking thread
-            thread = Thread(target=runner)
-            thread.start()
+        def runner():
+            try:
+                result = self.client.post(object_type, data=payload)
+                self.log.debug("Response: %s" % result)
+            except ForemanBackendException as ex:
+                ForemanClient.error_notify_user(ex, user)
+                raise ex
 
-        else:
-            self.log.info("skipping extend request as the change is coming from the foreman backend")
+        # some changes (e.g. creating a host) trigger requests from foreman to gosa
+        # so we need to run this request in a non blocking thread
+        thread = Thread(target=runner)
+        thread.start()
+
         return None
 
     def move_extension(self, uuid, new_base):
@@ -183,38 +169,35 @@ class Foreman(ObjectBackend):
 
     def update(self, uuid, data, params, dn=None, needed=None, user=None):
         self.log.debug("update: '%s', '%s', '%s'" % (uuid, data, params))
-        if Foreman.modifier != "foreman":
-            object_type = self.get_foreman_type(needed, params)
-            payload = self.__collect_data(data, params, object_type=object_type[:-1])
-            restart = False
-            # check special reboot attribute
-            if object_type == "hosts" and "reboot" in payload["host"]:
-                if "build" in payload["host"] and payload["host"]["build"] is True and payload["host"]["reboot"] is True:
-                    # restart host after commit
-                    restart = True
+        object_type = self.get_foreman_type(needed, params)
+        payload = self.__collect_data(data, params, object_type=object_type[:-1])
+        restart = False
+        # check special reboot attribute
+        if object_type == "hosts" and "reboot" in payload["host"]:
+            if "build" in payload["host"] and payload["host"]["build"] is True and payload["host"]["reboot"] is True:
+                # restart host after commit
+                restart = True
 
-                del payload["host"]["reboot"]
+            del payload["host"]["reboot"]
 
-            # finally send the update to foreman
-            self.log.debug("sending update '%s' to foreman" % payload)
+        # finally send the update to foreman
+        self.log.debug("sending update '%s' to foreman" % payload)
 
-            def runner():
-                try:
-                    result = self.client.put(object_type, uuid, data=payload)
-                    self.log.debug("Response: %s" % result)
-                    if restart is True:
-                        self.log.info("Restarting host to trigger the build")
-                        self.client.put("hosts/%s" % uuid, "power", {"power_action": "reset"})
-                except ForemanBackendException as ex:
-                    ForemanClient.error_notify_user(ex, user)
-                    raise ex
+        def runner():
+            try:
+                result = self.client.put(object_type, uuid, data=payload)
+                self.log.debug("Response: %s" % result)
+                if restart is True:
+                    self.log.info("Restarting host to trigger the build")
+                    self.client.put("hosts/%s" % uuid, "power", {"power_action": "reset"})
+            except ForemanBackendException as ex:
+                ForemanClient.error_notify_user(ex, user)
+                raise ex
 
-            # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
-            # so we need to run this request in a non blocking thread
-            thread = Thread(target=runner)
-            thread.start()
-        else:
-            self.log.info("skipping update request as the change is coming from the foreman backend")
+        # some changes (e.g. changing the hostgroup) trigger requests from foreman to gosa
+        # so we need to run this request in a non blocking thread
+        thread = Thread(target=runner)
+        thread.start()
 
     def is_uniq(self, attr, value, at_type):
         self.log.debug("is_uniq: %s, %s, %s" % (attr, value, at_type))

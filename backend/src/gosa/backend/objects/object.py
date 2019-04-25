@@ -1367,7 +1367,7 @@ class Object(object):
 
                 c_obj.commit()
 
-    def remove_refs(self):
+    def remove_refs(self, skip_backend_writes=[]):
         for ref_attr, self_attr, value, refs, multivalue, mode, pattern in self.get_references(): #@UnusedVariable
 
             for ref in refs:
@@ -1407,7 +1407,7 @@ class Object(object):
                 else:
                     raise ObjectException(C.make_error('UNHANDLED_REFERENCE_MODE', mode=mode))
 
-                c_obj.commit()
+                c_obj.commit(skip_backend_writes=skip_backend_writes)
 
     def get_dn_references(self):
         res = []
@@ -1422,7 +1422,7 @@ class Object(object):
 
         return res
 
-    def update_dn_refs(self, new_dn):
+    def update_dn_refs(self, new_dn, skip_backend_writes=[]):
         """ updates references to a changed DN """
         for ref_attr, refs in self.get_dn_references():
             for ref in refs:
@@ -1437,9 +1437,9 @@ class Object(object):
                 else:
                     setattr(c_obj, ref_attr, new_dn)
 
-                c_obj.commit(skip_write_hooks=True)
+                c_obj.commit(skip_write_hooks=True, skip_backend_writes=skip_backend_writes)
 
-    def remove_dn_refs(self):
+    def remove_dn_refs(self, skip_backend_writes=[]):
         for ref_attr, refs in self.get_dn_references():
             for ref in refs:
                 c_obj = ObjectProxy(ref)
@@ -1452,9 +1452,9 @@ class Object(object):
                 else:
                     setattr(c_obj, ref_attr, None)
 
-                c_obj.commit(skip_write_hooks=True)
+                c_obj.commit(skip_write_hooks=True, skip_backend_writes=skip_backend_writes)
 
-    def remove(self):
+    def remove(self, skip_backend_writes=[]):
         """
         Removes this object - and eventually it's containements.
         """
@@ -1520,7 +1520,8 @@ class Object(object):
                 kwargs = self.get_backend_kwargs(be_config_attrs)
 
             #pylint: disable=E1101
-            be.remove(uuid, remove_attrs, be_config_attrs, **kwargs)
+            if backend not in skip_backend_writes:
+                be.remove(uuid, remove_attrs, be_config_attrs, **kwargs)
 
         zope.event.notify(ObjectChanged("post remove", obj))
 
@@ -1591,7 +1592,7 @@ class Object(object):
 
         zope.event.notify(ObjectChanged("post move", obj, dn=dn))
 
-    def retract(self):
+    def retract(self, skip_backend_writes=[]):
         """
         Removes this object extension
         """
@@ -1655,7 +1656,8 @@ class Object(object):
             kwargs = self.get_backend_kwargs(be_config_attrs)
 
             #pylint: disable=E1101
-            be.retract(uuid, remove_attrs, self._backendAttrs[backend] if backend in self._backendAttrs else None, **kwargs)
+            if backend not in skip_backend_writes:
+                be.retract(uuid, remove_attrs, self._backendAttrs[backend] if backend in self._backendAttrs else None, **kwargs)
 
         zope.event.notify(ObjectChanged("post retract", obj))
 

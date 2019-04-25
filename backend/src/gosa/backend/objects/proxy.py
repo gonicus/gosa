@@ -939,7 +939,7 @@ class ObjectProxy(object):
     def get_mode(self):
         return self.__base_mode
 
-    def remove(self, recursive=False):
+    def remove(self, recursive=False, skip_backend_writes=[]):
         """
         Removes the currently proxied object.
         """
@@ -971,7 +971,7 @@ class ObjectProxy(object):
             for child in children:
                 try:
                     c_obj = ObjectProxy(child)
-                    c_obj.remove(recursive=True)
+                    c_obj.remove(recursive=True, skip_backend_writes=skip_backend_writes)
                 except Exception as e:
                     self.__log.error("Error removing child %s: %s" % (child, str(e)))
 
@@ -983,10 +983,10 @@ class ObjectProxy(object):
 
         for extension in [e for e in self.__extensions.values() if e]:
             extension.remove_refs()
-            extension.retract()
+            extension.retract(skip_backend_writes=skip_backend_writes)
 
         self.__base.remove_refs()
-        self.__base.remove()
+        self.__base.remove(skip_backend_writes=skip_backend_writes)
 
         zope.event.notify(ObjectChanged("post object remove", self.__base))
 
@@ -1149,7 +1149,7 @@ class ObjectProxy(object):
                             obj = ObjectProxy(x["dn"])
                             self.__log.debug("removing reference to %s from %s.%s" % (self.dn, obj.dn, hook["notified_obj_attribute"]))
                             setattr(obj, hook["notified_obj_attribute"], None)
-                            obj.commit()
+                            obj.commit(skip_backend_writes=skip_backend_writes)
 
                     if len(add):
                         query = {"dn": {"in_": add}}
@@ -1162,7 +1162,7 @@ class ObjectProxy(object):
                             obj = ObjectProxy(x["dn"])
                             self.__log.debug("adding reference to %s to %s.%s" % (self.dn, obj.dn, hook["notified_obj_attribute"]))
                             setattr(obj, hook["notified_obj_attribute"], self.dn)
-                            obj.commit()
+                            obj.commit(skip_backend_writes=skip_backend_writes)
 
         zope.event.notify(ObjectChanged("post object %s" % self.__base_mode, self.__base, changed_props=changed_props))
 
