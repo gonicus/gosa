@@ -160,6 +160,8 @@ class JsonRpcHandler(HSTSRequestHandler):
                 session.add(user_session)
 
     def __delete_user_session(self, user_session):
+        if user_session is None:
+            return
         if self.env.mode == "proxy":
             if user_session.sid in sessions:
                 del sessions[user_session.sid]
