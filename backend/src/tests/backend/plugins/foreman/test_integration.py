@@ -17,7 +17,11 @@ from unittest import TestCase, mock
 
 import time
 from sqlalchemy import and_
-from tornado.testing import AsyncHTTPTestCase, AsyncTestCase
+from tornado import gen
+from tornado.httpclient import AsyncHTTPClient
+import asyncio
+
+from tornado.testing import AsyncHTTPTestCase, gen_test
 from tornado.web import Application, HTTPError
 
 from gosa.backend.objects import ObjectProxy
@@ -106,13 +110,16 @@ class MockForeman:
         tid = "%s|put" % url
         if tid in self.triggers:
             for trigger in self.triggers[tid]:
+                call = False
                 if trigger['active'] is True:
-                    trigger['cb'](**kwargs)
+                    call = True
                 elif trigger['act_cb'](**kwargs) is True:
                     trigger['active'] = True
-                    trigger['cb'](**kwargs)
+                    call = True
                 else:
                     logging.getLogger("test.foreman-integration").info("inactive trigger")
+                if call is True:
+                    trigger['cb'](**kwargs)
 
         logging.getLogger("test.foreman-integration").info("PUT: %s (%s)" % (url, kwargs))
         return MockResponse({}, 200)
@@ -138,7 +145,7 @@ class MockForeman:
             "act_cb": activation_callback,
             "cb": callback
         })
-        logging.getLogger("test.foreman-integration").info("trigger registered: %s" % id)
+        logging.getLogger("test.foreman-integration").info("trigger registered: %s" % tid)
 
 
 @mock.patch("gosa.backend.objects.backend.back_foreman.requests.post")
@@ -157,8 +164,8 @@ class ForemanIntegrationTestCase(RemoteTestCase):
     _test_dn = None
 
     def setUp(self):
-        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.DEBUG)
-        # logging.getLogger("gosa.backend.objects").setLevel(logging.DEBUG)
+        logging.getLogger("gosa.backend.plugins.foreman.main").setLevel(logging.DEBUG)
+        logging.getLogger("gosa.backend.plugins.webhook.registry").setLevel(logging.DEBUG)
         logging.getLogger("gosa.backend.objects").info("SET UP")
         RemoteTestCase.setUp(self)
         env = Environment.getInstance()
@@ -182,18 +189,63 @@ class ForemanIntegrationTestCase(RemoteTestCase):
         self.registry.unregisterWebhook("admin", "foreman-sp", "application/vnd.foreman.hostevent+json")
         self.registry.unregisterWebhook("admin", "foreman-hook", "application/vnd.foreman.hookevent+json")
         self.foreman_backend.client = self.foreman_backend_client_backup
-        logging.getLogger("gosa.backend.plugins.foreman").setLevel(logging.INFO)
-        # logging.getLogger("gosa.backend.objects").setLevel(logging.INFO)
+        logging.getLogger("gosa.backend.plugins.foreman.main").setLevel(logging.INFO)
+        logging.getLogger("gosa.backend.plugins.webhook.registry").setLevel(logging.INFO)
         logging.getLogger("gosa.backend.objects").info("tear down")
         if self._test_dn is not None:
             GosaTestCase.remove_test_data(self._test_dn)
             self._test_dn = None
-        RemoteTestCase.tearDown(self)
+        try:
+            RemoteTestCase.tearDown(self)
+        except Exception as e:
+            logging.getLogger("gosa.backend.objects").error(str(e))
+
 
     def get_app(self):
         return Application([('/hooks(?P<path>.*)?', WebhookReceiver)], cookie_secret='TecloigJink4', xsrf_cookies=True)
 
-    def test_provision_host(self, m_get, m_del, m_put, m_post):
+    @gen.coroutine
+    def execute(self, **kwargs):
+        client = AsyncHTTPClient(self.io_loop)
+        logging.getLogger("test.foreman-integration").info("executing realm request simulation")
+        # execute realm request to GOsa
+        payload = bytes(dumps({"parameters": {"update": "true", "userclass": "Test", "splat": [],
+                                              "captures": ["GOSA"], "realm": "GOSA"}, "action": "create",
+                               "hostname": "Testhost"}), 'utf-8')
+
+        signature_hash = hmac.new(bytes(self.host_token, 'ascii'), msg=payload, digestmod="sha512")
+        signature = 'sha1=' + signature_hash.hexdigest()
+        headers = {
+            'Content-Type': 'application/vnd.foreman.hostevent+json',
+            'HTTP_X_HUB_SENDER': 'foreman-sp',
+            'HTTP_X_HUB_SIGNATURE': signature
+        }
+        logging.getLogger("test.foreman-integration").info("send hostevent to: %s" % self.get_url("/hooks/"))
+        response = yield client.fetch(self.get_url("/hooks/"), method="POST", headers=headers, body=payload)
+        logging.getLogger("test.foreman-integration").info("hostevent response: %s" % response.body)
+        assert response.code == 200
+        assert len(response.body.decode('utf-8').split('|')) == 2
+
+        # send update
+        payload = bytes(dumps({
+            "event": "after_commit",
+            "object": "Testhost", 'data': {'host': {
+                'host': {'build': True, 'parameters': [], 'last_report': None, 'subnet_id': 1,
+                         'name': 'Testhost', 'realm_name': 'GOSA', 'mac': '00:26:2d:f1:6a:2c'}}}}), 'utf-8')
+        signature_hash = hmac.new(bytes(self.hook_token, 'ascii'), msg=payload, digestmod="sha512")
+        signature = 'sha1=' + signature_hash.hexdigest()
+        headers = {
+            'Content-Type': 'application/vnd.foreman.hookevent+json',
+            'HTTP_X_HUB_SENDER': 'foreman-hook',
+            'HTTP_X_HUB_SIGNATURE': signature
+        }
+        logging.getLogger("test.foreman-integration").info("send hookevent")
+        response = yield client.fetch(self.get_url("/hooks/"), method="POST", headers=headers, body=payload)
+        logging.getLogger("test.foreman-integration").info("hookevent response: %s" % response)
+        assert response.code == 200
+
+    @gen_test
+    async def test_provision_host(self, m_get, m_del, m_put, m_post):
         """ convert a discovered host to a 'real' host  """
         self._test_dn = GosaTestCase.create_test_data()
         container = ObjectProxy(self._test_dn, "IncomingDeviceContainer")
@@ -223,7 +275,7 @@ class ForemanIntegrationTestCase(RemoteTestCase):
         hostgroup.commit()
 
         # add host to group
-        logging.getLogger("test.foreman-integration").info("########### START: Add Host to group #############")
+        logging.getLogger("test.foreman-integration").info("########### START: Add Host to group ############# %s" % AsyncHTTPTestCase.get_url(self, "/hooks/"))
         d_host = ObjectProxy("cn=mac00262df16a2c,%s" % container.dn)
 
         def check():
@@ -246,49 +298,13 @@ class ForemanIntegrationTestCase(RemoteTestCase):
                                                          check2,
                                                          f.read())
 
-        myself = self
-
         def activate(**kwargs):
             return True
-
-        def execute(**kwargs):
-            logging.getLogger("test.foreman-integration").info("executing realm request simulation")
-            # execute realm request to GOsa
-            payload = bytes(dumps({"parameters": {"update": "true", "userclass": "Test", "splat": [],
-                                   "captures": ["GOSA"], "realm": "GOSA"}, "action": "create",
-                                   "hostname": "Testhost"}), 'utf-8')
-
-            signature_hash = hmac.new(bytes(myself.host_token, 'ascii'), msg=payload, digestmod="sha512")
-            signature = 'sha1=' + signature_hash.hexdigest()
-            headers = {
-                'Content-Type': 'application/vnd.foreman.hostevent+json',
-                'HTTP_X_HUB_SENDER': 'foreman-sp',
-                'HTTP_X_HUB_SIGNATURE': signature
-            }
-            response = AsyncHTTPTestCase.fetch(myself, "/hooks/", method="POST", headers=headers, body=payload)
-            assert response.code == 200
-            assert len(response.body.decode('utf-8').split('|')) == 2
-
-            # send update
-            payload = bytes(dumps({
-                "event": "after_commit",
-                "object": "Testhost", 'data': {'host': {
-                    'host': {'build': True, 'parameters': [], 'last_report': None, 'subnet_id': 1,
-                             'name': 'Testhost', 'realm_name': 'GOSA', 'mac': '00:26:2d:f1:6a:2c'}}}}), 'utf-8')
-            signature_hash = hmac.new(bytes(myself.hook_token, 'ascii'), msg=payload, digestmod="sha512")
-            signature = 'sha1=' + signature_hash.hexdigest()
-            headers = {
-                'Content-Type': 'application/vnd.foreman.hookevent+json',
-                'HTTP_X_HUB_SENDER': 'foreman-hook',
-                'HTTP_X_HUB_SIGNATURE': signature
-            }
-            response = AsyncHTTPTestCase.fetch(myself, "/hooks/", method="POST", headers=headers, body=payload)
-            assert response.code == 200
 
         mocked_foreman.register_trigger("http://localhost:8000/api/v2/discovered_hosts/mac00262df16a2c",
                                         "put",
                                         activate,
-                                        execute)
+                                        self.execute)
 
         with make_session() as session:
             assert session.query(ObjectInfoIndex.dn)\
@@ -299,7 +315,8 @@ class ForemanIntegrationTestCase(RemoteTestCase):
         d_host.cn = "Testhost"
         d_host.groupMembership = hostgroup.dn
         d_host.commit()
-        time.sleep(5)
+        logging.getLogger("test.foreman-integration").info("waiting for 5 seconds")
+        await asyncio.sleep(4)
 
         logging.getLogger("test.foreman-integration").info("########### END: Add Host to group #############")
 
