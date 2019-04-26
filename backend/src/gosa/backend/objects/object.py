@@ -1009,59 +1009,63 @@ class Object(object):
             index.currently_in_creation.append(self)
 
         # First, take care about the primary backend...
-        if p_backend in toStore and p_backend not in skip_backend_writes:
-            beAttrs = self._backendAttrs[p_backend] if p_backend in self._backendAttrs else {}
-            be = ObjectBackendRegistry.getBackend(p_backend)
-            uuid = self.uuid
-
-            kwargs = self.get_backend_kwargs(beAttrs)
-            if self._owner is not None:
-                kwargs["user"] = self._owner
-
-            if "_uuidAttribute" in beAttrs:
-                value = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
-                if value is None:
-                    raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=p_backend, name=beAttrs['_uuidAttribute']))
-                else:
-                    uuid = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
-
-            if self._mode == "create":
-                obj.uuid = be.create(self.dn, toStore[p_backend], self._backendAttrs[p_backend], **kwargs)
-
-            elif self._mode == "extend":
-                self.log.info("%s extend with data %s" % (self.dn, toStore[p_backend]))
-                be.extend(uuid, toStore[p_backend],
-                          self._backendAttrs[p_backend],
-                          self.getForeignProperties(),
-                          **kwargs)
-
+        if p_backend in toStore:
+            if p_backend in skip_backend_writes:
+                self.log.debug("skipping backend write: %s" % p_backend)
             else:
-                be.update(uuid, toStore[p_backend], beAttrs, **kwargs)
+                beAttrs = self._backendAttrs[p_backend] if p_backend in self._backendAttrs else {}
+                be = ObjectBackendRegistry.getBackend(p_backend)
+                uuid = self.uuid
 
-            # Eventually the DN has changed
-            if self._base_object:
-                dn = be.uuid2dn(self.uuid)
+                kwargs = self.get_backend_kwargs(beAttrs)
+                if self._owner is not None:
+                    kwargs["user"] = self._owner
 
-                # Take DN for newly created objects
+                if "_uuidAttribute" in beAttrs:
+                    value = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
+                    if value is None:
+                        raise ObjectException(C.make_error('READ_BACKEND_UUID_VALUE', backend=p_backend, name=beAttrs['_uuidAttribute']))
+                    else:
+                        uuid = self._getattr_(beAttrs['_uuidAttribute'], "in_value")
+
                 if self._mode == "create":
-                    if self._base_object:
+                    obj.uuid = be.create(self.dn, toStore[p_backend], self._backendAttrs[p_backend], **kwargs)
+
+                elif self._mode == "extend":
+                    self.log.info("%s extend with data %s" % (self.dn, toStore[p_backend]))
+                    be.extend(uuid, toStore[p_backend],
+                              self._backendAttrs[p_backend],
+                              self.getForeignProperties(),
+                              **kwargs)
+
+                else:
+                    be.update(uuid, toStore[p_backend], beAttrs, **kwargs)
+
+                # Eventually the DN has changed
+                if self._base_object:
+                    dn = be.uuid2dn(self.uuid)
+
+                    # Take DN for newly created objects
+                    if self._mode == "create":
+                        if self._base_object:
+                            obj.dn = dn
+
+                    elif dn != obj.dn:
+
+                        self.update_dn_refs(dn)
+
                         obj.dn = dn
+                        if self._base_object:
+                            zope.event.notify(ObjectChanged("post move", obj))
 
-                elif dn != obj.dn:
-
-                    self.update_dn_refs(dn)
-
-                    obj.dn = dn
-                    if self._base_object:
-                        zope.event.notify(ObjectChanged("post move", obj))
-
-                    obj.orig_dn = dn
+                        obj.orig_dn = dn
 
         # ... then walk thru the remaining ones
         for backend, data in toStore.items():
 
             # Skip primary backend - already done
             if backend == p_backend or backend in skip_backend_writes:
+                self.log.debug("skipping backend write: %s" % p_backend)
                 continue
 
             be = ObjectBackendRegistry.getBackend(backend)
