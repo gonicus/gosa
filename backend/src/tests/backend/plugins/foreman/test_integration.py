@@ -315,8 +315,8 @@ class ForemanIntegrationTestCase(RemoteTestCase):
         d_host.cn = "Testhost"
         d_host.groupMembership = hostgroup.dn
         d_host.commit()
-        logging.getLogger("test.foreman-integration").info("waiting for 5 seconds")
-        await asyncio.sleep(4)
+        logging.getLogger("test.foreman-integration").info("waiting for 2 seconds")
+        await asyncio.sleep(2)
 
         logging.getLogger("test.foreman-integration").info("########### END: Add Host to group #############")
 
